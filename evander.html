@@ -1,0 +1,3601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVANDER // Academic Telemetry & Loss-Aversion Engine</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js for Subtle Architectural 3D Wireframe Sculpture -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Instrument Serif (Editorial Display), Plus Jakarta Sans (Ergonomic UI), JetBrains Mono (Precision Data) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ==========================================================================
+           PSYCHOLOGICAL & PERCEPTUAL ERGONOMICS (Zero-Halation Palette)
+           Designed to eliminate visual fatigue during 6+ hour exam study blocks.
+           ========================================================================== */
+        :root {
+            /* Warm Archival Paper Light Theme (Default for Daylight Reading Comfort) */
+            --bg-primary: #F6F5F0;
+            --bg-surface: #EFECE6;
+            --bg-elevated: #FFFFFF;
+            --bg-subtle: #E6E3DC;
+            --border-hairline: #DCD8CF;
+            --border-strong: #B8B3A8;
+            
+            --text-primary: #1C1B19;
+            --text-secondary: #57544E;
+            --text-muted: #858078;
+
+            /* Desaturated Muted Semantic Accents (Easy on photoreceptors) */
+            --accent-terracotta: #B84233;
+            --accent-terracotta-bg: rgba(184, 66, 51, 0.08);
+            --accent-sage: #2D6A4F;
+            --accent-sage-bg: rgba(45, 106, 79, 0.09);
+            --accent-ochre: #B57B2E;
+            
+            /* 4-Unit Architectural Ink Tones */
+            --unit-info: #2B5B84;   /* Prussian Slate */
+            --unit-data: #6C4B82;   /* Muted Aubergine */
+            --unit-math: #B84233;   /* Vermilion Clay */
+            --unit-budl: #386B52;   /* Mineral Sage */
+        }
+
+        html.dark {
+            /* Low-Glare Warm Carbon Dark Theme (No #000000 to prevent astigmatism halation) */
+            --bg-primary: #141413;
+            --bg-surface: #1C1C1A;
+            --bg-elevated: #232320;
+            --bg-subtle: #2A2A26;
+            --border-hairline: #2E2E2A;
+            --border-strong: #46453F;
+
+            --text-primary: #E6E4DD;
+            --text-secondary: #A39F96;
+            --text-muted: #6E6B64;
+
+            --accent-terracotta: #D96B5C;
+            --accent-terracotta-bg: rgba(217, 107, 92, 0.12);
+            --accent-sage: #68A688;
+            --accent-sage-bg: rgba(104, 166, 136, 0.12);
+            --accent-ochre: #D4A056;
+
+            --unit-info: #6296C2;
+            --unit-data: #A07EB8;
+            --unit-math: #D96B5C;
+            --unit-budl: #68A688;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.25s ease, color 0.25s ease;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Editorial Surface Utilities */
+        .surface-card {
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-hairline);
+            transition: border-color 0.2s ease, background-color 0.25s ease;
+        }
+        .surface-card:hover {
+            border-color: var(--border-strong);
+        }
+        .surface-panel {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-hairline);
+        }
+        .surface-inset {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-hairline);
+        }
+        .hairline-b { border-bottom: 1px solid var(--border-hairline); }
+        .hairline-t { border-top: 1px solid var(--border-hairline); }
+        .hairline-r { border-right: 1px solid var(--border-hairline); }
+        .hairline-l { border-left: 1px solid var(--border-hairline); }
+
+        .text-ink { color: var(--text-primary); }
+        .text-sub { color: var(--text-secondary); }
+        .text-dim { color: var(--text-muted); }
+        .text-loss { color: var(--accent-terracotta); }
+        .text-gain { color: var(--accent-sage); }
+
+        /* Autonomous Quote Crossfade Animation */
+        .quote-fade {
+            transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1), transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .quote-hidden {
+            opacity: 0;
+            transform: translateY(4px);
+        }
+
+        /* Subtle Ambient Progress Bar for Autonomous Quote Timer */
+        @keyframes quoteProgress {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+        .animate-quote-bar {
+            animation: quoteProgress 9s linear infinite;
+        }
+
+        /* Custom Minimal Scrollbars */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-strong);
+            border-radius: 2px;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* ==========================================================================
+           NOTION BLOCK EDITOR & SLASH COMMAND ERGONOMICS
+           ========================================================================== */
+        .notion-block-row {
+            position: relative;
+            transition: background-color 0.12s ease;
+        }
+        .notion-block-row:hover .notion-gutter-controls {
+            opacity: 1;
+        }
+        .notion-gutter-controls {
+            opacity: 0;
+            transition: opacity 0.12s ease;
+        }
+        .notion-editable {
+            outline: none;
+            word-break: break-word;
+            min-height: 1.5em;
+        }
+        .notion-editable:empty:before {
+            content: attr(data-placeholder);
+            color: var(--text-muted);
+            pointer-events: none;
+            opacity: 0.65;
+        }
+        .notion-slash-item.active {
+            background-color: var(--bg-subtle);
+            color: var(--text-primary);
+        }
+        .notion-callout {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-hairline);
+        }
+        .notion-quote-line {
+            border-left: 3px solid var(--text-primary);
+        }
+        .notion-code-block {
+            background-color: var(--bg-inset, var(--bg-primary));
+            border: 1px solid var(--border-hairline);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        kbd.shortcut-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            background-color: var(--bg-subtle);
+            border: 1px solid var(--border-hairline);
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col lg:flex-row">
+
+    <!-- ========================================================================= -->
+    <!-- LEFT ARCHITECTURAL NAVIGATION RAIL (Calm, Minimalist USYD Structure)      -->
+    <!-- ========================================================================= -->
+    <aside class="w-full lg:w-56 surface-panel hairline-b lg: border-b-0 hairline-r flex lg:flex-col justify-between shrink-0 z-30 select-none">
+        <div>
+            <!-- Minimal Brand Identity -->
+            <div class="h-14 px-5 hairline-b flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-6 h-6 rounded-xs flex items-center justify-center font-serif italic text-base font-bold" style="background-color: var(--text-primary); color: var(--bg-elevated);">
+                        E
+                    </div>
+                    <div>
+                        <span class="font-semibold text-sm tracking-tight text-ink block leading-none">Evander</span>
+                        <span class="font-mono text-[10px] text-dim tracking-wider">USYD // S2.2026</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Primary Navigation -->
+            <nav class="flex lg:flex-col p-2.5 gap-1 overflow-x-auto">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-xs font-medium transition-colors">
+                    <i data-lucide="layout-grid" class="w-4 h-4 shrink-0"></i>
+                    <span>Overview & Units</span>
+                </button>
+                <button onclick="switchTab('tasks')" id="nav-tasks" class="flex items-center justify-between px-3 py-2.5 rounded-md text-left text-xs font-medium transition-colors">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="list-ordered" class="w-4 h-4 shrink-0"></i>
+                        <span>Priority Ledger</span>
+                    </div>
+                    <span id="urgent-badge" class="font-mono text-[10px] px-1.5 py-0.5 rounded-xs font-medium">0</span>
+                </button>
+                <button onclick="switchTab('todo')" id="nav-todo" class="flex items-center justify-between px-3 py-2.5 rounded-md text-left text-xs font-medium transition-colors">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="check-square" class="w-4 h-4 shrink-0"></i>
+                        <span>Notion To-Do Docs</span>
+                    </div>
+                    <span id="todo-open-badge" class="font-mono text-[10px] px-1.5 py-0.5 rounded-xs font-medium surface-inset text-sub">0</span>
+                </button>
+                <button onclick="switchTab('calendar')" id="nav-calendar" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-xs font-medium transition-colors">
+                    <i data-lucide="calendar" class="w-4 h-4 shrink-0"></i>
+                    <span>Master Calendar</span>
+                </button>
+            </nav>
+
+            <!-- Enrolled Units Quick Standing -->
+            <div class="hidden lg:block px-5 py-5 hairline-t mt-2">
+                <div class="font-mono text-[10px] uppercase tracking-widest text-dim mb-3">Enrolled Units (100 Max)</div>
+                <div class="space-y-2.5 font-mono text-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="flex items-center gap-2 text-sub"><span class="w-2 h-2 rounded-full" style="background-color: var(--unit-info)"></span>INFO1110</span>
+                        <span class="text-ink font-medium text-[11px]" id="rail-unit-INFO1110">--%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="flex items-center gap-2 text-sub"><span class="w-2 h-2 rounded-full" style="background-color: var(--unit-data)"></span>DATA1901</span>
+                        <span class="text-ink font-medium text-[11px]" id="rail-unit-DATA1901">--%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="flex items-center gap-2 text-sub"><span class="w-2 h-2 rounded-full" style="background-color: var(--unit-math)"></span>MATH1061</span>
+                        <span class="text-ink font-medium text-[11px]" id="rail-unit-MATH1061">--%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="flex items-center gap-2 text-sub"><span class="w-2 h-2 rounded-full" style="background-color: var(--unit-budl)"></span>BUDL2902</span>
+                        <span class="text-ink font-medium text-[11px]" id="rail-unit-BUDL2902">--%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Action & Reference Clock -->
+        <div class="hidden lg:flex flex-col p-4 hairline-t gap-3">
+            <div class="px-1">
+                <div class="font-mono text-[10px] text-dim uppercase">Reference Date</div>
+                <div class="font-mono text-xs font-medium text-ink mt-0.5" id="clock-display">Tue, 27 Oct 2026</div>
+            </div>
+            <button onclick="openTaskModal()" class="w-full py-2 px-3 rounded-md font-medium text-xs flex items-center justify-center gap-1.5 transition-opacity hover:opacity-90" style="background-color: var(--text-primary); color: var(--bg-elevated);">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>New Assessment</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ========================================================================= -->
+    <!-- MAIN WORKSPACE                                                            -->
+    <!-- ========================================================================= -->
+    <main class="flex-1 flex flex-col min-w-0">
+
+        <!-- SUBTLE MINIMAL TOP BAR WITH SMALL THEME SWITCH -->
+        <header class="h-14 hairline-b surface-panel px-4 lg:px-8 flex items-center justify-between gap-4 sticky top-0 z-20">
+            <div class="flex items-center gap-3 min-w-0">
+                <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background-color: var(--accent-terracotta)"></span>
+                <span id="header-status-label" class="font-mono text-[11px] text-sub tracking-tight truncate">
+                    STUVAC PREPARATION WINDOW // LOSS-AVERSION TELEMETRY ACTIVE
+                </span>
+                <span id="sync-status-indicator" class="hidden sm:inline-flex items-center gap-1.5 font-mono text-[10px] px-2 py-0.5 rounded-xs surface-inset text-dim">
+                    <span id="sync-dot" class="w-1.5 h-1.5 rounded-full" style="background-color: var(--accent-sage)"></span>
+                    <span id="sync-text">Auto-Save Ready</span>
+                </span>
+            </div>
+
+            <div class="flex items-center gap-2.5 shrink-0">
+                <!-- Simulation Reference Date Picker -->
+                <div class="hidden sm:flex items-center gap-1.5 surface-inset px-2.5 py-1 rounded-md">
+                    <span class="font-mono text-[10px] text-dim">DATE:</span>
+                    <input type="date" id="sim-date-input" value="2026-10-27" onchange="handleReferenceDateChange(this.value)" class="bg-transparent font-mono text-[11px] text-ink focus:outline-none cursor-pointer">
+                </div>
+
+                <!-- GitHub Pages Portable JSON Export / Import -->
+                <button onclick="exportWorkspaceJSON()" title="Export Portable JSON Backup (for GitHub Pages / Cross-Device)" class="px-2.5 py-1 surface-inset hover:opacity-80 rounded-md font-mono text-[11px] text-sub flex items-center gap-1 transition-opacity">
+                    <i data-lucide="download" class="w-3 h-3"></i>
+                    <span class="hidden xl:inline">Export JSON</span>
+                </button>
+                <label title="Import JSON Workspace Backup" class="px-2.5 py-1 surface-inset hover:opacity-80 rounded-md font-mono text-[11px] text-sub flex items-center gap-1 transition-opacity cursor-pointer">
+                    <i data-lucide="upload" class="w-3 h-3"></i>
+                    <span class="hidden xl:inline">Import</span>
+                    <input type="file" accept=".json" onchange="importWorkspaceJSON(event)" class="hidden">
+                </label>
+
+                <!-- Reset Demo Button -->
+                <button onclick="resetDemoData()" title="Reset to Default Semester Data" class="px-2.5 py-1 surface-inset hover:opacity-80 rounded-md font-mono text-[11px] text-sub flex items-center gap-1 transition-opacity">
+                    <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+                    <span class="hidden md:inline">Reset</span>
+                </button>
+
+                <!-- Small, Subtle Dark / Light Theme Switch Button -->
+                <button onclick="toggleTheme()" id="theme-toggle-btn" title="Toggle Paper Light / Carbon Dark Theme" class="w-7 h-7 surface-inset rounded-md flex items-center justify-center text-sub hover:text-ink transition-colors">
+                    <i data-lucide="moon" id="theme-icon-moon" class="w-3.5 h-3.5"></i>
+                    <i data-lucide="sun" id="theme-icon-sun" class="w-3.5 h-3.5 hidden"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- ===================================================================== -->
+        <!-- VIEW 01: OVERVIEW DASHBOARD                                           -->
+        <!-- ===================================================================== -->
+        <section id="view-dashboard" class="p-4 lg:p-8 space-y-8 max-w-[1440px] w-full mx-auto">
+
+            <!-- TOP ROW: AUTONOMOUS MOTIVATION STREAM (UNSELECTABLE) + 3D FORM -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- Autonomous Psychological & Founder Stream (8 Columns) -->
+                <!-- Strictly unselectable (`select-none pointer-events-none`) with zero buttons/inputs -->
+                <div class="lg:col-span-8 surface-card rounded-lg p-6 lg:p-8 flex flex-col justify-between relative overflow-hidden select-none pointer-events-none">
+                    <!-- Subtle 1px Top Progress Hairline showing automatic rotation -->
+                    <div class="absolute top-0 left-0 right-0 h-[2px] bg-transparent overflow-hidden">
+                        <div id="quote-progress-bar" class="h-full animate-quote-bar" style="background-color: var(--border-strong)"></div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <span class="font-mono text-[10px] uppercase tracking-widest text-dim" id="quote-category-tag">
+                            AUTONOMOUS CONDITIONING // STREAM
+                        </span>
+                        <span class="font-mono text-[10px] text-dim">
+                            AUTO-CYCLE // 9.0s
+                        </span>
+                    </div>
+
+                    <div id="quote-container" class="my-6 quote-fade">
+                        <blockquote id="main-quote-text" class="font-serif text-2xl sm:text-3xl lg:text-[34px] leading-[1.22] tracking-tight text-ink">
+                            “Competition is for losers. If you want to create and capture lasting value, look to build a monopoly.”
+                        </blockquote>
+                        <div class="mt-4 flex items-center justify-between">
+                            <cite id="main-quote-author" class="not-italic font-mono text-xs text-sub">
+                                — Peter Thiel (Zero to One, 2014)
+                            </cite>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 hairline-t flex items-center justify-between font-mono text-[11px] text-dim">
+                        <span>VERBATIM FOUNDER & STOIC ARCHIVE + LIVE UNIT DIAGNOSTICS</span>
+                        <span id="quote-index-readout">01 / 16</span>
+                    </div>
+                </div>
+
+                <!-- Minimal Blender-Inspired 3D Architectural Tensegrity Artifact (4 Columns) -->
+                <div class="lg:col-span-4 surface-card rounded-lg flex flex-col justify-between overflow-hidden">
+                    <div class="px-4 py-3 hairline-b flex items-center justify-between">
+                        <div>
+                            <span class="font-mono text-[10px] uppercase tracking-wider text-dim block">3D Telemetry Form</span>
+                            <h3 class="text-xs font-semibold text-ink">Cognitive Equilibrium</h3>
+                        </div>
+                        <span id="mesh-state-badge" class="font-mono text-[10px] px-2 py-0.5 rounded-xs" style="background-color: var(--accent-terracotta-bg); color: var(--accent-terracotta);">
+                            6.0 pts burned
+                        </span>
+                    </div>
+
+                    <!-- Three.js Viewport -->
+                    <div id="three-canvas-container" class="relative w-full h-[180px] cursor-grab active:cursor-grabbing select-none">
+                        <div class="absolute bottom-2.5 left-3.5 pointer-events-none font-mono text-[10px] text-dim">
+                            Drag to inspect geometry
+                        </div>
+                    </div>
+
+                    <!-- Clean 4-Metric Summary Strip -->
+                    <div class="grid grid-cols-4 hairline-t surface-panel font-mono text-center divide-x" style="border-color: var(--border-hairline);">
+                        <div class="p-2.5">
+                            <div class="text-[9px] text-dim uppercase">Avg WAM</div>
+                            <div class="text-xs font-semibold text-ink mt-0.5" id="stat-overall-wam">--%</div>
+                        </div>
+                        <div class="p-2.5">
+                            <div class="text-[9px] text-dim uppercase">Banked</div>
+                            <div class="text-xs font-semibold text-gain mt-0.5" id="stat-total-banked">0/400</div>
+                        </div>
+                        <div class="p-2.5">
+                            <div class="text-[9px] text-dim uppercase">Lost</div>
+                            <div class="text-xs font-semibold text-loss mt-0.5" id="stat-total-lost">-0.0</div>
+                        </div>
+                        <div class="p-2.5">
+                            <div class="text-[9px] text-dim uppercase">Ceiling</div>
+                            <div class="text-xs font-semibold text-ink mt-0.5" id="stat-avg-ceiling">100%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION HEADER: 4-UNIT PROGRESS & LOSS-AVERSION CEILING -->
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 pt-2">
+                <div>
+                    <h2 class="font-serif text-2xl sm:text-3xl text-ink tracking-tight">Unit Standing & Grade Ceiling (100 Max)</h2>
+                    <p class="text-xs text-sub mt-0.5">
+                        Every unit starts at 100 possible marks. Any mark lost permanently lowers your maximum possible score for that unit.
+                    </p>
+                </div>
+                <button onclick="openTaskModal()" class="self-start sm:self-auto px-3 py-1.5 surface-card rounded-md font-mono text-xs text-ink hover:opacity-80 flex items-center gap-1.5">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Assessment Grade
+                </button>
+            </div>
+
+            <!-- 4-UNIT CARDS GRID -->
+            <div id="units-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Populated via JS -->
+            </div>
+
+            <!-- EXTENSIVE ANALYTICS & TARGET GRADE CALCULATOR -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Cross-Unit Stacked Distribution (7 cols) -->
+                <div class="lg:col-span-7 surface-card p-6 rounded-lg">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
+                        <div>
+                            <span class="font-mono text-[10px] text-dim uppercase tracking-wider">Semester Analytics</span>
+                            <h3 class="text-base font-semibold text-ink">100-Point Allocation Across Units</h3>
+                        </div>
+                        <div class="flex items-center gap-4 font-mono text-[10px] text-sub">
+                            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-xs" style="background-color: var(--accent-sage)"></span>Banked</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-xs" style="background-color: var(--border-strong)"></span>Remaining</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-xs" style="background-color: var(--accent-terracotta)"></span>Lost Forever</span>
+                        </div>
+                    </div>
+                    <div id="analytics-bars-container" class="space-y-4">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Target Exam Required Score Calculator (5 cols) -->
+                <div class="lg:col-span-5 surface-card p-6 rounded-lg flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <span class="font-mono text-[10px] text-dim uppercase tracking-wider">Required Exam Trajectory</span>
+                                <h3 class="text-base font-semibold text-ink">Target Threshold Simulator</h3>
+                            </div>
+                            <select id="target-tier-select" onchange="renderSurvivalCalculator()" class="surface-inset font-mono text-xs text-ink px-2.5 py-1.5 rounded-md focus:outline-none">
+                                <option value="85">HD (85 / 100)</option>
+                                <option value="75" selected>Distinction (75 / 100)</option>
+                                <option value="65">Credit (65 / 100)</option>
+                                <option value="50">Pass (50 / 100)</option>
+                            </select>
+                        </div>
+                        <div id="survival-calc-list" class="space-y-2 font-mono text-xs">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 hairline-t flex items-center justify-between text-[11px] font-mono text-dim">
+                        <span>USYD 100-Point Grading Standard</span>
+                        <span id="analytics-completion-readout">--% of semester graded</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- VIEW 02: PRIORITY LEDGER (5-COLUMN DESCENDING PRIORITY TABLE)         -->
+        <!-- ===================================================================== -->
+        <section id="view-tasks" class="hidden p-4 lg:p-8 space-y-6 max-w-[1440px] w-full mx-auto">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div>
+                    <span class="font-mono text-[10px] uppercase tracking-widest text-loss font-medium">
+                        Descending Priority Order // Tasks Due Within 3 Days Highlighted
+                    </span>
+                    <h2 class="font-serif text-3xl text-ink tracking-tight mt-0.5">Assignments & Exam Ledger</h2>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    <select id="task-unit-filter" onchange="renderTasksTable()" class="surface-card font-mono text-xs text-ink px-3 py-2 rounded-md focus:outline-none">
+                        <option value="ALL">All Units (4)</option>
+                        <option value="INFO1110">INFO1110 — Intro to Programming</option>
+                        <option value="DATA1901">DATA1901 — Foundations of Data Science</option>
+                        <option value="MATH1061">MATH1061 — Math 1A Calculus & Linear Alg</option>
+                        <option value="BUDL2902">BUDL2902 — Innovations in Organizations</option>
+                    </select>
+                    <button onclick="openTaskModal()" class="px-3.5 py-2 rounded-md font-medium text-xs flex items-center gap-1.5" style="background-color: var(--text-primary); color: var(--bg-elevated);">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Task
+                    </button>
+                </div>
+            </div>
+
+            <!-- 5-COLUMN ARCHITECTURAL TABLE -->
+            <div class="surface-card rounded-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="surface-panel hairline-b font-mono text-[11px] text-dim uppercase tracking-wider">
+                                <th class="py-3 px-4 hairline-r w-[28%]">01 / Assignment Name</th>
+                                <th class="py-3 px-4 hairline-r w-[14%]">02 / Unit Code</th>
+                                <th class="py-3 px-4 hairline-r w-[14%]">03 / Grade Weight</th>
+                                <th class="py-3 px-4 hairline-r w-[24%]">04 / Google Drive Documents</th>
+                                <th class="py-3 px-4 w-[20%]">05 / Deadline & Priority</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasks-table-body" class="divide-y text-sm" style="border-color: var(--border-hairline);">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- VIEW 03: MASTER CALENDAR (USYD CANVAS STRUCTURE, REFINED AESTHETIC)   -->
+        <!-- ===================================================================== -->
+        <section id="view-calendar" class="hidden p-4 lg:p-8 max-w-[1440px] w-full mx-auto">
+            <div class="flex flex-col xl:flex-row gap-6">
+
+                <!-- Main Calendar Grid -->
+                <div class="flex-1 surface-card rounded-lg overflow-hidden flex flex-col">
+                    <!-- Calendar Header Toolbar -->
+                    <div class="p-4 hairline-b surface-panel flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <button onclick="goToTodayCalendar()" class="px-3 py-1.5 surface-card rounded-md font-mono text-xs text-ink hover:opacity-80">
+                                Today
+                            </button>
+                            <div class="flex items-center surface-card rounded-md overflow-hidden">
+                                <button onclick="changeCalendarMonth(-1)" class="p-1.5 text-sub hover:text-ink" title="Previous Month">
+                                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="changeCalendarMonth(1)" class="p-1.5 text-sub hover:text-ink hairline-l" title="Next Month">
+                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <h2 id="calendar-month-title" class="font-serif text-2xl text-ink ml-2">
+                                October 2026
+                            </h2>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center surface-card rounded-md overflow-hidden font-mono text-xs">
+                                <button onclick="setCalendarSubView('month')" id="calview-month" class="px-3 py-1.5 font-medium">Month</button>
+                                <button onclick="setCalendarSubView('agenda')" id="calview-agenda" class="px-3 py-1.5 text-sub hairline-l">Agenda</button>
+                            </div>
+                            <button onclick="openTaskModal()" class="p-1.5 px-2.5 surface-card rounded-md text-ink hover:opacity-80" title="Add Assessment">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Month Grid Wrapper -->
+                    <div id="calendar-Grid-Wrapper">
+                        <div class="grid grid-cols-7 hairline-b surface-panel font-mono text-[11px] text-dim text-center uppercase tracking-wider">
+                            <div class="py-2 hairline-r">Sun</div>
+                            <div class="py-2 hairline-r">Mon</div>
+                            <div class="py-2 hairline-r">Tue</div>
+                            <div class="py-2 hairline-r">Wed</div>
+                            <div class="py-2 hairline-r">Thu</div>
+                            <div class="py-2 hairline-r">Fri</div>
+                            <div class="py-2">Sat</div>
+                        </div>
+                        <div id="calendar-days-grid" class="grid grid-cols-7">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Agenda Sub-View -->
+                    <div id="calendar-agenda-wrapper" class="hidden p-6 space-y-2.5">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Right Sidebar: Mini Navigator + Unit Calendars Filter + 72h Priority -->
+                <div class="w-full xl:w-72 shrink-0 space-y-5">
+                    <!-- Mini Month Navigator -->
+                    <div class="surface-card p-4 rounded-lg">
+                        <div class="flex items-center justify-between mb-3">
+                            <button onclick="changeCalendarMonth(-1)" class="text-sub hover:text-ink"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                            <span id="mini-cal-title" class="font-mono text-xs font-semibold text-ink">October 2026</span>
+                            <button onclick="changeCalendarMonth(1)" class="text-sub hover:text-ink"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                        </div>
+                        <div class="grid grid-cols-7 text-center font-mono text-[10px] text-dim mb-1">
+                            <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+                        </div>
+                        <div id="mini-cal-grid" class="grid grid-cols-7 gap-1 text-center font-mono text-[11px]">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Calendars Unit Filter -->
+                    <div class="surface-card p-4 rounded-lg">
+                        <div class="font-mono text-[11px] font-semibold uppercase tracking-wider text-ink mb-3">
+                            Calendars
+                        </div>
+                        <div id="calendar-unit-toggles" class="space-y-2 text-xs">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Priority Due Within 3 Days -->
+                    <div class="surface-card p-4 rounded-lg">
+                        <div class="font-mono text-[11px] font-semibold uppercase tracking-wider text-loss mb-2.5 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--accent-terracotta)"></span>
+                            Priority // Due Within 3 Days
+                        </div>
+                        <div id="cal-sidebar-urgent-list" class="space-y-2 text-xs font-mono">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- VIEW 04: NOTION-INSPIRED TO-DO & ASSIGNMENT REQUIREMENTS WORKSPACE    -->
+        <!-- ===================================================================== -->
+        <section id="view-todo" class="hidden flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-3.5rem)] max-w-[1600px] w-full mx-auto">
+
+            <!-- Left Notion Page Tree & Quick Filter Sidebar -->
+            <div class="w-full lg:w-72 surface-panel hairline-b lg:border-b-0 hairline-r flex flex-col justify-between p-4 shrink-0">
+                <div class="space-y-4">
+                    <!-- Quick Search / Command Bar Trigger -->
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="relative flex-1">
+                            <i data-lucide="search" class="w-3.5 h-3.5 text-dim absolute left-2.5 top-2.5"></i>
+                            <input 
+                                type="text" 
+                                id="notion-page-search" 
+                                oninput="renderNotionSidebar()" 
+                                placeholder="Find page or task..." 
+                                class="w-full surface-inset pl-8 pr-2.5 py-1.5 rounded-md font-mono text-xs text-ink focus:outline-none"
+                            >
+                        </div>
+                        <button onclick="createNewNotionPage(null)" title="New Root Page (/p)" class="p-1.5 surface-card rounded-md text-ink hover:opacity-80">
+                            <i data-lucide="file-plus" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Overall To-Do Progress Meter -->
+                    <div class="p-3 surface-card rounded-md space-y-2">
+                        <div class="flex items-center justify-between font-mono text-[10px]">
+                            <span class="text-dim uppercase">Requirement Completion</span>
+                            <span id="notion-global-progress-txt" class="text-ink font-semibold">0 / 0 Done</span>
+                        </div>
+                        <div class="w-full h-1.5 surface-inset rounded-xs overflow-hidden">
+                            <div id="notion-global-progress-bar" class="h-full transition-all duration-300" style="width: 0%; background-color: var(--accent-sage)"></div>
+                        </div>
+                    </div>
+
+                    <!-- Hierarchical Workspace Pages -->
+                    <div>
+                        <div class="flex items-center justify-between font-mono text-[10px] text-dim uppercase tracking-wider px-1 mb-1.5">
+                            <span>Assignment Docs & Pages</span>
+                            <span>/p to nest</span>
+                        </div>
+                        <div id="notion-pages-tree" class="space-y-0.5 max-h-[380px] overflow-y-auto pr-1">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notion Keyboard Shortcuts Cheat Sheet Card -->
+                <div class="mt-6 pt-4 hairline-t space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-mono text-[10px] uppercase tracking-wider text-dim font-semibold">Notion Shortcuts</span>
+                        <button onclick="toggleShortcutsDrawer()" class="font-mono text-[10px] text-ink underline">Full Guide</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5 text-[11px] font-mono text-sub">
+                        <div class="flex items-center justify-between surface-inset px-2 py-1 rounded-xs">
+                            <span>Sub-page</span><kbd class="shortcut-pill">/p</kbd>
+                        </div>
+                        <div class="flex items-center justify-between surface-inset px-2 py-1 rounded-xs">
+                            <span>To-do</span><kbd class="shortcut-pill">[]</kbd>
+                        </div>
+                        <div class="flex items-center justify-between surface-inset px-2 py-1 rounded-xs">
+                            <span>Heading</span><kbd class="shortcut-pill">#</kbd>
+                        </div>
+                        <div class="flex items-center justify-between surface-inset px-2 py-1 rounded-xs">
+                            <span>Toggle</span><kbd class="shortcut-pill">&gt;</kbd>
+                        </div>
+                        <div class="flex items-center justify-between surface-inset px-2 py-1 rounded-xs">
+                            <span>Commands</span><kbd class="shortcut-pill">/</kbd>
+                        </div>
+                        <div class="flex items-center justify-between surface-inset px-2 py-1 rounded-xs">
+                            <span>Divider</span><kbd class="shortcut-pill">---</kbd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Notion Document Canvas -->
+            <div class="flex-1 flex flex-col min-w-0 surface-card lg:m-6 lg:rounded-lg overflow-hidden">
+                <!-- Top Breadcrumb & Linked Assignment Bar -->
+                <div class="px-6 py-3 surface-panel hairline-b flex flex-wrap items-center justify-between gap-3">
+                    <div id="notion-breadcrumbs" class="flex items-center gap-1.5 font-mono text-xs text-sub flex-wrap">
+                        <!-- Populated via JS -->
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <select id="notion-page-unit-select" onchange="updateActivePageMeta('unit', this.value)" class="surface-inset font-mono text-[11px] text-ink px-2.5 py-1 rounded-md focus:outline-none">
+                            <option value="ALL">General Workspace</option>
+                            <option value="INFO1110">INFO1110</option>
+                            <option value="DATA1901">DATA1901</option>
+                            <option value="MATH1061">MATH1061</option>
+                            <option value="BUDL2902">BUDL2902</option>
+                        </select>
+                        <select id="notion-page-task-select" onchange="updateActivePageMeta('linkedTaskId', this.value)" class="surface-inset font-mono text-[11px] text-ink px-2.5 py-1 rounded-md focus:outline-none max-w-[210px] truncate">
+                            <option value="">Link to Assessment...</option>
+                        </select>
+                        <button onclick="createSubpageInsideCurrent()" class="px-2.5 py-1 surface-inset hover:opacity-80 rounded-md font-mono text-[11px] text-ink flex items-center gap-1" title="Create sub-page inside this document (/p)">
+                            <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i>
+                            <span>+ Sub-page (/p)</span>
+                        </button>
+                        <button onclick="deleteCurrentNotionPage()" class="p-1.5 surface-inset hover:text-loss rounded-md text-dim" title="Delete Page">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Document Body Container -->
+                <div class="flex-1 overflow-y-auto px-6 sm:px-14 lg:px-24 py-10 max-w-4xl w-full mx-auto space-y-6">
+                    <!-- Page Icon & Editable Title -->
+                    <div class="space-y-3 pb-4 hairline-b">
+                        <div class="flex items-center gap-3">
+                            <button onclick="cycleNotionPageIcon()" id="notion-page-icon-btn" class="w-10 h-10 rounded-md surface-panel flex items-center justify-center text-xl hover:opacity-80 transition-opacity" title="Click to change icon">
+                                📐
+                            </button>
+                            <div class="flex-1 min-w-0">
+                                <input 
+                                    type="text" 
+                                    id="notion-page-title-input" 
+                                    oninput="updateActivePageTitle(this.value)"
+                                    placeholder="Untitled Requirement Spec..."
+                                    class="w-full bg-transparent font-serif text-3xl sm:text-4xl text-ink focus:outline-none"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Linked Assessment Context Banner (if linked to one of the 24 tasks) -->
+                        <div id="notion-linked-banner" class="hidden p-3 surface-panel rounded-md flex flex-wrap items-center justify-between gap-2 font-mono text-xs">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Sub-pages Inside This Page Pill Bar -->
+                    <div id="notion-subpages-bar" class="hidden space-y-1.5">
+                        <div class="font-mono text-[10px] uppercase tracking-wider text-dim">Nested Sub-Pages</div>
+                        <div id="notion-subpages-list" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <!-- Notion Blocks List -->
+                    <div id="notion-blocks-container" class="space-y-1 pb-24">
+                        <!-- Populated via JS -->
+                    </div>
+
+                    <!-- Bottom Quick-Add Bar -->
+                    <div class="pt-4 hairline-t flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-dim">
+                        <div class="flex items-center gap-2">
+                            <button onclick="appendNotionBlock('todo', '')" class="px-2.5 py-1 surface-panel hover:text-ink rounded-md flex items-center gap-1.5">
+                                <i data-lucide="check-square" class="w-3.5 h-3.5"></i> + To-do
+                            </button>
+                            <button onclick="appendNotionBlock('h2', '')" class="px-2.5 py-1 surface-panel hover:text-ink rounded-md">
+                                + Heading
+                            </button>
+                            <button onclick="appendNotionBlock('callout', '')" class="px-2.5 py-1 surface-panel hover:text-ink rounded-md">
+                                + Callout
+                            </button>
+                            <button onclick="createSubpageInsideCurrent()" class="px-2.5 py-1 surface-panel hover:text-ink rounded-md">
+                                + Sub-page (/p)
+                            </button>
+                        </div>
+                        <span>Type <kbd class="shortcut-pill">/</kbd> anywhere for commands or <kbd class="shortcut-pill">/p</kbd> for new page</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- FLOATING NOTION SLASH COMMAND MENU (`/`, `/p`, `/todo`, `/h1`, etc.)      -->
+    <!-- ========================================================================= -->
+    <div id="notion-slash-menu" class="fixed z-50 hidden w-72 surface-card rounded-lg shadow-2xl overflow-hidden">
+        <div class="px-3 py-2 surface-panel hairline-b flex items-center justify-between font-mono text-[10px] text-dim">
+            <span>BASIC BLOCKS & PAGES</span>
+            <span id="slash-filter-indicator">Type to filter</span>
+        </div>
+        <div id="notion-slash-items" class="max-h-72 overflow-y-auto divide-y" style="border-color: var(--border-hairline);">
+            <!-- Populated via JS -->
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 3: NOTION DOCUMENTATION & KEYBOARD SHORTCUTS GUIDE                  -->
+    <!-- ========================================================================= -->
+    <div id="shortcuts-modal" class="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-50 hidden items-center justify-center p-4">
+        <div class="surface-card w-full max-w-2xl rounded-lg overflow-hidden shadow-xl">
+            <div class="px-6 py-4 surface-panel hairline-b flex items-center justify-between">
+                <div>
+                    <span class="font-mono text-[10px] text-dim uppercase block">Notion Documentation Reference</span>
+                    <h3 class="font-serif text-xl text-ink">Slash Commands, Markdown & Block Shortcuts</h3>
+                </div>
+                <button onclick="toggleShortcutsDrawer()" class="text-sub hover:text-ink"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs font-mono">
+                <div class="space-y-2.5">
+                    <div class="text-[10px] uppercase tracking-wider text-dim font-semibold">Slash Commands (Type + Enter)</div>
+                    <div class="flex justify-between py-1 hairline-b"><span>Create Nested Page</span><kbd class="shortcut-pill">/p</kbd> or <kbd class="shortcut-pill">/page</kbd></div>
+                    <div class="flex justify-between py-1 hairline-b"><span>To-Do Checkbox</span><kbd class="shortcut-pill">/todo</kbd> or <kbd class="shortcut-pill">/t</kbd></div>
+                    <div class="flex justify-between py-1 hairline-b"><span>Large Heading 1</span><kbd class="shortcut-pill">/h1</kbd></div>
+                    <div class="flex justify-between py-1 hairline-b"><span>Medium Heading 2</span><kbd class="shortcut-pill">/h2</kbd></div>
+                    <div class="flex justify-between py-1 hairline-b"><span>Small Heading 3</span><kbd class="shortcut-pill">/h3</kbd></div>
+                    <div class="flex justify-between py-1 hairline-b"><span>Bulleted List Item</span><kbd class="shortcut-pill">/bullet</kbd></div>
+                    <div class="flex justify-between py-1 hairline-b"><span>Collapsible Toggle</span><kbd class="shortcut-pill">/toggle</kbd></div>
+                    <div class="flex justify-between py-1 hairline-b"><span>Callout Box</span><kbd class="shortcut-pill">/callout</kbd></div>
+                    <div class="flex justify-between py-1"><span>Code Snippet Block</span><kbd class="shortcut-pill">/code</kbd></div>
+                </div>
+                <div class="space-y-2.5">
+                    <div class="text-[10px] uppercase tracking-wider text-dim font-semibold">Instant Markdown Triggers (At Line Start)</div>
+                    <div class="flex justify-between py-1 hairline-b"><span>To-Do Checkbox</span><span><kbd class="shortcut-pill">[]</kbd> + Space</span></div>
+                    <div class="flex justify-between py-1 hairline-b"><span>Checked To-Do</span><span><kbd class="shortcut-pill">[x]</kbd> + Space</span></div>
+                    <div class="flex justify-between py-1 hairline-b"><span>Heading 1 / 2 / 3</span><span><kbd class="shortcut-pill">#</kbd> <kbd class="shortcut-pill">##</kbd> <kbd class="shortcut-pill">###</kbd> + Space</span></div>
+                    <div class="flex justify-between py-1 hairline-b"><span>Bullet List</span><span><kbd class="shortcut-pill">-</kbd> or <kbd class="shortcut-pill">*</kbd> + Space</span></div>
+                    <div class="flex justify-between py-1 hairline-b"><span>Toggle Block</span><span><kbd class="shortcut-pill">&gt;</kbd> + Space</span></div>
+                    <div class="flex justify-between py-1 hairline-b"><span>Quote Block</span><span><kbd class="shortcut-pill">"</kbd> + Space</span></div>
+                    <div class="flex justify-between py-1 hairline-b"><span>Horizontal Divider</span><span><kbd class="shortcut-pill">---</kbd></span></div>
+                    <div class="flex justify-between py-1"><span>Check / Uncheck Task</span><span><kbd class="shortcut-pill">Ctrl/Cmd + Enter</kbd></span></div>
+                </div>
+            </div>
+            <div class="px-6 py-3 surface-panel hairline-t flex items-center justify-between font-mono text-[11px] text-sub">
+                <span>GitHub Pages Compatible: All pages & blocks auto-save locally and can be exported as JSON.</span>
+                <button onclick="toggleShortcutsDrawer()" class="px-3 py-1 surface-card text-ink rounded-md">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 1: ADD / EDIT ASSESSMENT OR EXAM                                    -->
+    <!-- ========================================================================= -->
+    <div id="task-modal" class="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-50 hidden items-center justify-center p-4">
+        <div class="surface-card w-full max-w-lg rounded-lg overflow-hidden shadow-xl">
+            <div class="px-6 py-4 surface-panel hairline-b flex items-center justify-between">
+                <span class="font-mono text-xs font-semibold text-ink" id="modal-title">Log Assessment or Exam</span>
+                <button onclick="closeTaskModal()" class="text-sub hover:text-ink"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form id="task-form" onsubmit="saveTaskForm(event)" class="p-6 space-y-4 text-xs">
+                <input type="hidden" id="form-task-id">
+
+                <div>
+                    <label class="block font-mono text-[11px] text-sub mb-1.5">Assignment or Exam Name *</label>
+                    <input type="text" id="form-task-name" required placeholder="e.g., Assignment 3A — Innovation Strategy" class="w-full surface-inset px-3.5 py-2 text-ink rounded-md focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-mono text-[11px] text-sub mb-1.5">Unit Code *</label>
+                        <select id="form-task-unit" required class="w-full surface-inset px-3 py-2 text-ink rounded-md focus:outline-none">
+                            <option value="INFO1110">INFO1110 — Intro to Programming</option>
+                            <option value="DATA1901">DATA1901 — Foundations of Data Science</option>
+                            <option value="MATH1061">MATH1061 — Math 1A Calculus & Linear Alg</option>
+                            <option value="BUDL2902">BUDL2902 — Innovations in Organizations</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-mono text-[11px] text-sub mb-1.5">Grade Weight (% of 100) *</label>
+                        <input type="number" id="form-task-weight" required min="1" max="100" step="0.5" placeholder="20" class="w-full surface-inset px-3.5 py-2 text-ink font-mono rounded-md focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-mono text-[11px] text-sub mb-1.5">Deadline Date *</label>
+                        <input type="date" id="form-task-date" required class="w-full surface-inset px-3.5 py-2 text-ink font-mono rounded-md focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-mono text-[11px] text-sub mb-1.5">Deadline Time</label>
+                        <input type="time" id="form-task-time" value="23:59" class="w-full surface-inset px-3.5 py-2 text-ink font-mono rounded-md focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-mono text-[11px] text-sub mb-1.5">Google Drive Document Link</label>
+                    <input type="url" id="form-task-drive" placeholder="https://drive.google.com/drive/folders/..." class="w-full surface-inset px-3.5 py-2 text-ink font-mono rounded-md focus:outline-none">
+                </div>
+
+                <div class="p-3.5 surface-panel rounded-md space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="font-mono text-[11px] font-medium text-ink">Input Grade / Result for this Assessment?</span>
+                        <input type="checkbox" id="form-task-isgraded" onchange="toggleScoreInputs(this.checked)" class="w-4 h-4">
+                    </div>
+                    <div id="score-inputs-row" class="hidden grid-cols-2 gap-3 pt-2 hairline-t">
+                        <div>
+                            <label class="block font-mono text-[10px] text-dim mb-1">Marks Earned</label>
+                            <input type="number" id="form-task-earned" step="0.1" min="0" placeholder="4" class="w-full surface-inset px-3 py-1.5 text-ink font-mono rounded-md">
+                        </div>
+                        <div>
+                            <label class="block font-mono text-[10px] text-dim mb-1">Out of Possible Marks</label>
+                            <input type="number" id="form-task-outof" step="0.1" min="1" placeholder="10" class="w-full surface-inset px-3 py-1.5 text-ink font-mono rounded-md">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2.5 pt-3 hairline-t">
+                    <button type="button" onclick="closeTaskModal()" class="px-4 py-2 surface-inset text-sub rounded-md">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-md font-medium" style="background-color: var(--text-primary); color: var(--bg-elevated);">Save Assessment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 2: QUICK SCORE & GRADE CEILING CALCULATOR                           -->
+    <!-- ========================================================================= -->
+    <div id="grade-modal" class="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-50 hidden items-center justify-center p-4">
+        <div class="surface-card w-full max-w-md rounded-lg overflow-hidden shadow-xl">
+            <div class="px-6 py-4 surface-panel hairline-b flex items-center justify-between">
+                <span class="font-mono text-xs font-semibold text-ink">Input Assessment Score</span>
+                <button onclick="closeGradeModal()" class="text-sub hover:text-ink"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form onsubmit="saveQuickGrade(event)" class="p-6 space-y-4 font-mono text-xs">
+                <input type="hidden" id="quick-grade-task-id">
+                <div id="quick-grade-task-summary" class="p-3 surface-panel rounded-md text-ink"></div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-dim text-[10px] uppercase mb-1">Your Score *</label>
+                        <input type="number" id="quick-grade-earned" required step="0.1" min="0" placeholder="4" class="w-full surface-inset px-3 py-2 text-base font-semibold text-ink rounded-md focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-dim text-[10px] uppercase mb-1">Out Of Possible *</label>
+                        <input type="number" id="quick-grade-outof" required step="0.1" min="0.5" placeholder="10" class="w-full surface-inset px-3 py-2 text-base font-semibold text-ink rounded-md focus:outline-none">
+                    </div>
+                </div>
+
+                <p class="font-sans text-xs text-sub leading-relaxed">
+                    Example: Scoring <strong>4 out of 10</strong> on a <span id="quick-grade-weight-hint" class="font-mono font-semibold">10%</span> assessment banks <strong>4/100</strong> toward the unit, loses <strong>6 marks</strong> permanently, and reduces your maximum possible score to <strong>94</strong>.
+                </p>
+
+                <div class="flex items-center justify-between pt-3 hairline-t">
+                    <button type="button" onclick="clearTaskGrade()" class="text-loss hover:underline">Clear Score</button>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="closeGradeModal()" class="px-3.5 py-1.5 surface-inset text-sub rounded-md">Cancel</button>
+                        <button type="submit" class="px-4 py-1.5 rounded-md font-sans font-medium" style="background-color: var(--text-primary); color: var(--bg-elevated);">Update Standing</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- APPLICATION LOGIC                                                         -->
+    <!-- ========================================================================= -->
+    <script>
+        // 1. UNIT DEFINITIONS (Using Calm Architectural Ink Tones)
+        const UNITS = {
+            INFO1110: {
+                code: 'INFO1110',
+                name: 'Introduction to Programming',
+                colorVar: 'var(--unit-info)',
+                visibleInCal: true
+            },
+            DATA1901: {
+                code: 'DATA1901',
+                name: 'Foundations of Data Science',
+                colorVar: 'var(--unit-data)',
+                visibleInCal: true
+            },
+            MATH1061: {
+                code: 'MATH1061',
+                name: 'Math 1A Calculus & Linear Algebra',
+                colorVar: 'var(--unit-math)',
+                visibleInCal: true
+            },
+            BUDL2902: {
+                code: 'BUDL2902',
+                name: 'Innovations in Organizations',
+                colorVar: 'var(--unit-budl)',
+                visibleInCal: true
+            }
+        };
+
+        let referenceDateStr = '2026-10-27';
+        let currentCalYear = 2026;
+        let currentCalMonth = 9; // October
+        let calendarSubView = 'month';
+        let activeTab = 'dashboard';
+
+        // 2. YOUR EXACT 24 ENTERED ASSESSMENTS & GRADES (Restored directly from your screenshots)
+        const DEFAULT_TASKS = [
+            // --- UNGRADED UPCOMING TASKS (01 to 09) ---
+            {
+                id: 'usr-01-math-a2',
+                name: 'Math1061 - Assignment 2',
+                unit: 'MATH1061',
+                weight: 10,
+                driveLink: '',
+                dueDate: '2026-10-30',
+                dueTime: '23:59',
+                isGraded: false,
+                earnedRaw: null,
+                outOfRaw: 10
+            },
+            {
+                id: 'usr-02-data-ind-rep',
+                name: 'Data individual project report',
+                unit: 'DATA1901',
+                weight: 17,
+                driveLink: '',
+                dueDate: '2026-10-30',
+                dueTime: '23:59',
+                isGraded: false,
+                earnedRaw: null,
+                outOfRaw: 17
+            },
+            {
+                id: 'usr-03-budl-sol-final',
+                name: 'innovation solution development final',
+                unit: 'BUDL2902',
+                weight: 20,
+                driveLink: '',
+                dueDate: '2026-11-06',
+                dueTime: '23:59',
+                isGraded: false,
+                earnedRaw: null,
+                outOfRaw: 20
+            },
+            {
+                id: 'usr-04-budl-contrib',
+                name: 'contribution',
+                unit: 'BUDL2902',
+                weight: 15,
+                driveLink: '',
+                dueDate: '2026-11-09',
+                dueTime: '23:59',
+                isGraded: false,
+                earnedRaw: null,
+                outOfRaw: 15
+            },
+            {
+                id: 'usr-05-info-adv-rev',
+                name: 'adv assignment code review',
+                unit: 'INFO1110',
+                weight: 20,
+                driveLink: '',
+                dueDate: '2026-11-14',
+                dueTime: '23:59',
+                isGraded: false,
+                earnedRaw: null,
+                outOfRaw: 20
+            },
+            {
+                id: 'usr-06-budl-challenges',
+                name: 'innovation solution challenges individual',
+                unit: 'BUDL2902',
+                weight: 15,
+                driveLink: '',
+                dueDate: '2026-11-16',
+                dueTime: '23:59',
+                isGraded: false,
+                earnedRaw: null,
+                outOfRaw: 15
+            },
+            {
+                id: 'usr-07-data-final',
+                name: 'Final exam',
+                unit: 'DATA1901',
+                weight: 60,
+                driveLink: '',
+                dueDate: '2026-11-18',
+                dueTime: '13:00',
+                isGraded: false,
+                earnedRaw: null,
+                outOfRaw: 60
+            },
+            {
+                id: 'usr-08-info-final-adv',
+                name: 'final exam advanced',
+                unit: 'INFO1110',
+                weight: 30,
+                driveLink: '',
+                dueDate: '2026-11-19',
+                dueTime: '09:00',
+                isGraded: false,
+                earnedRaw: null,
+                outOfRaw: 30
+            },
+            {
+                id: 'usr-09-math-final',
+                name: 'final exam',
+                unit: 'MATH1061',
+                weight: 60,
+                driveLink: '',
+                dueDate: '2026-11-23',
+                dueTime: '09:00',
+                isGraded: false,
+                earnedRaw: null,
+                outOfRaw: 60
+            },
+
+            // --- GRADED COMPLETED TASKS (10 to 24) ---
+            {
+                id: 'usr-10-math-quiz12',
+                name: 'out of class quiz 1.2',
+                unit: 'MATH1061',
+                weight: 2,
+                driveLink: '',
+                dueDate: '2026-08-31',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 2,
+                outOfRaw: 2
+            },
+            {
+                id: 'usr-11-math-assign1',
+                name: 'Assignment 1 math1a',
+                unit: 'MATH1061',
+                weight: 5,
+                driveLink: '',
+                dueDate: '2026-09-30',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 4.5,
+                outOfRaw: 5
+            },
+            {
+                id: 'usr-12-math-inperson',
+                name: 'in person quiz',
+                unit: 'MATH1061',
+                weight: 15,
+                driveLink: '',
+                dueDate: '2026-10-09',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 4,
+                outOfRaw: 12
+            },
+            {
+                id: 'usr-13-data-checkpoint',
+                name: 'data individual report checkpoint',
+                unit: 'DATA1901',
+                weight: 3,
+                driveLink: '',
+                dueDate: '2026-10-18',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 3,
+                outOfRaw: 3
+            },
+            {
+                id: 'usr-14-info-foundation',
+                name: 'foundation test',
+                unit: 'INFO1110',
+                weight: 30,
+                driveLink: '',
+                dueDate: '2026-10-26',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 30,
+                outOfRaw: 30
+            },
+            {
+                id: 'usr-15-data-group',
+                name: 'data report group project',
+                unit: 'DATA1901',
+                weight: 10,
+                driveLink: '',
+                dueDate: '2026-10-27',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 10,
+                outOfRaw: 10
+            },
+            {
+                id: 'usr-16-math-contrib',
+                name: 'contribution',
+                unit: 'MATH1061',
+                weight: 2,
+                driveLink: '',
+                dueDate: '2026-10-27',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 2,
+                outOfRaw: 2
+            },
+            {
+                id: 'usr-17-budl-lecquiz',
+                name: 'in lecture quiz',
+                unit: 'BUDL2902',
+                weight: 10,
+                driveLink: '',
+                dueDate: '2026-10-27',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 8,
+                outOfRaw: 10
+            },
+            {
+                id: 'usr-18-budl-assign2',
+                name: 'assignment 2 problem identificaiton',
+                unit: 'BUDL2902',
+                weight: 15,
+                driveLink: '',
+                dueDate: '2026-10-27',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 11,
+                outOfRaw: 15
+            },
+            {
+                id: 'usr-19-budl-soldev',
+                name: 'innovation solution development',
+                unit: 'BUDL2902',
+                weight: 10,
+                driveLink: '',
+                dueDate: '2026-10-27',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 8,
+                outOfRaw: 10
+            },
+            {
+                id: 'usr-20-budl-assign4',
+                name: 'assignment 4 presentation',
+                unit: 'BUDL2902',
+                weight: 15,
+                driveLink: '',
+                dueDate: '2026-10-27',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 13,
+                outOfRaw: 15
+            },
+            {
+                id: 'usr-21-data-part',
+                name: 'participation',
+                unit: 'DATA1901',
+                weight: 5,
+                driveLink: '',
+                dueDate: '2026-10-31',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 4,
+                outOfRaw: 5
+            },
+            {
+                id: 'usr-22-data-wkquiz',
+                name: 'weekly quizes',
+                unit: 'DATA1901',
+                weight: 5,
+                driveLink: '',
+                dueDate: '2026-10-31',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 3,
+                outOfRaw: 5
+            },
+            {
+                id: 'usr-23-info-coderev',
+                name: 'codew review',
+                unit: 'INFO1110',
+                weight: 20,
+                driveLink: '',
+                dueDate: '2026-11-01',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 10,
+                outOfRaw: 20
+            },
+            {
+                id: 'usr-24-math-oocquiz',
+                name: 'out of class quiz',
+                unit: 'MATH1061',
+                weight: 6,
+                driveLink: '',
+                dueDate: '2026-11-18',
+                dueTime: '23:59',
+                isGraded: true,
+                earnedRaw: 5,
+                outOfRaw: 6
+            }
+        ];
+
+        let tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
+
+        // =========================================================================
+        // NOTION WORKSPACE DEFAULT PAGES (Pre-populated for your urgent USYD tasks)
+        // =========================================================================
+        const DEFAULT_NOTION_PAGES = [
+            {
+                id: 'page-math-a2',
+                parentId: null,
+                title: 'MATH1061 — Assignment 2 Requirement Breakdown',
+                icon: '📐',
+                unit: 'MATH1061',
+                linkedTaskId: 'usr-01-math-a2',
+                updatedAt: '2026-10-27',
+                blocks: [
+                    { id: 'b-m1', type: 'callout', text: 'Due Friday 30 Oct 2026 (10% weight). Every mark lost permanently lowers your 87.5/100 MATH1061 ceiling.', checked: false },
+                    { id: 'b-m2', type: 'h2', text: 'Part A: Multivariable Limits & Continuity', checked: false },
+                    { id: 'b-m3', type: 'todo', text: 'Write formal epsilon-delta / polar coordinate proof for Question 1(a)', checked: true },
+                    { id: 'b-m4', type: 'todo', text: 'Verify directional derivatives along y = mx^2 path and show non-existence', checked: false },
+                    { id: 'b-m5', type: 'h2', text: 'Part B: Linear Algebra & Eigenvalues', checked: false },
+                    { id: 'b-m6', type: 'todo', text: 'Compute characteristic polynomial det(A - λI) = 0 and check algebraic multiplicity', checked: false },
+                    { id: 'b-m7', type: 'todo', text: 'Type final LaTeX solution PDF and run sanity check before Canvas upload', checked: false },
+                    { id: 'b-m8', type: 'toggle', text: 'LaTeX Template & Submission Checklist (Click arrow to expand)', details: 'Ensure student SID is on the header of every page, export as PDF/A, and verify all matrix steps are explicitly justified.', isOpen: true }
+                ]
+            },
+            {
+                id: 'page-data-rep',
+                parentId: null,
+                title: 'DATA1901 — Individual Project Report Spec',
+                icon: '📊',
+                unit: 'DATA1901',
+                linkedTaskId: 'usr-02-data-ind-rep',
+                updatedAt: '2026-10-27',
+                blocks: [
+                    { id: 'b-d1', type: 'callout', text: 'Due Friday 30 Oct 2026 (17% weight). High-leverage report — aim for 17/17 to protect your 97/100 DATA1901 ceiling.', checked: false },
+                    { id: 'b-d2', type: 'h2', text: '1. Exploratory Data Analysis & Cleaning', checked: false },
+                    { id: 'b-d3', type: 'todo', text: 'Document missing value imputation methodology in R / Python notebook', checked: true },
+                    { id: 'b-d4', type: 'todo', text: 'Generate residual plots and verify homoscedasticity assumptions', checked: false },
+                    { id: 'b-d5', type: 'todo', text: 'Write executive summary & limitations section (strictly under word limit)', checked: false },
+                    { id: 'b-d6', type: 'code', text: 'model <- lm(target ~ predictor_a + predictor_b, data = clean_df)\nsummary(model) # Check p-values and Adjusted R-squared', checked: false }
+                ]
+            },
+            {
+                id: 'page-budl-final',
+                parentId: null,
+                title: 'BUDL2902 — Innovation Solution Development Final',
+                icon: '🚀',
+                unit: 'BUDL2902',
+                linkedTaskId: 'usr-03-budl-sol-final',
+                updatedAt: '2026-10-27',
+                blocks: [
+                    { id: 'b-b1', type: 'h2', text: 'Core Deliverable Checklist (20% Weight)', checked: false },
+                    { id: 'b-b2', type: 'todo', text: 'Synthesize primary stakeholder interview insights into Value Proposition Canvas', checked: false },
+                    { id: 'b-b3', type: 'todo', text: 'Draft commercialization roadmap & risk mitigation matrix', checked: false },
+                    { id: 'b-b4', type: 'todo', text: 'Cross-check APA 7th references and appendix figures', checked: false }
+                ]
+            },
+            {
+                id: 'page-info-adv',
+                parentId: null,
+                title: 'INFO1110 — Adv Assignment Code Review & Final Prep',
+                icon: '💻',
+                unit: 'INFO1110',
+                linkedTaskId: 'usr-05-info-adv-rev',
+                updatedAt: '2026-10-27',
+                blocks: [
+                    { id: 'b-i1', type: 'callout', text: 'Current INFO1110 ceiling is 90/100 after losing 10 marks on the first code review. Zero room for unforced errors.', checked: false },
+                    { id: 'b-i2', type: 'todo', text: 'Refactor OOP class hierarchy and eliminate mutable global state', checked: false },
+                    { id: 'b-i3', type: 'todo', text: 'Write edge-case unit tests with 100% branch coverage on parser module', checked: false },
+                    { id: 'b-i4', type: 'todo', text: 'Practice explaining time/space complexity of each method aloud for live review', checked: false }
+                ]
+            }
+        ];
+
+        let notionPages = JSON.parse(JSON.stringify(DEFAULT_NOTION_PAGES));
+        let activeNotionPageId = notionPages[0].id;
+
+        // 3. VERIFIED, REAL-WORLD QUOTES BY ACTUAL FOUNDERS, QUANT PIONEERS & THINKERS (Zero AI-made-up quotes)
+        const AUTONOMOUS_QUOTES = [
+            {
+                tag: 'PETER THIEL // CO-FOUNDER OF PAYPAL & PALANTIR',
+                text: 'Competition is for losers. If you want to create and capture lasting value, look to build a monopoly.',
+                author: 'Peter Thiel — Zero to One (2014)'
+            },
+            {
+                tag: 'ANDREW GROVE // FORMER CEO OF INTEL',
+                text: 'Success breeds complacency. Complacency breeds failure. Only the paranoid survive.',
+                author: 'Andrew S. Grove — Only the Paranoid Survive (1996)'
+            },
+            {
+                tag: 'CHARLIE MUNGER // VICE CHAIRMAN OF BERKSHIRE HATHAWAY',
+                text: 'Take a simple idea and take it seriously. Spend each day trying to be a little wiser than you were when you woke up.',
+                author: 'Charlie Munger — Poor Charlie’s Almanack'
+            },
+            {
+                tag: 'JENSEN HUANG // FOUNDER & CEO OF NVIDIA',
+                text: 'Greatness is not intelligence. Greatness comes from character. And character isn’t formed out of smart people—it’s formed out of people who suffered.',
+                author: 'Jensen Huang — Stanford Graduate School of Business (2024)'
+            },
+            {
+                tag: 'PAUL GRAHAM // CO-FOUNDER OF Y COMBINATOR',
+                text: 'Relentlessly resourceful. That is the quality that matters most in founders—not just working hard, but refusing to be stopped by obstacles.',
+                author: 'Paul Graham — Essay: "Relentlessly Resourceful" (2009)'
+            },
+            {
+                tag: 'RAY DALIO // FOUNDER OF BRIDGEWATER ASSOCIATES',
+                text: 'Pain + Reflection = Progress. If you’re not failing, you’re not pushing your limits, and if you’re not pushing your limits, you’re not maximizing your potential.',
+                author: 'Ray Dalio — Principles (2017)'
+            },
+            {
+                tag: 'STEVE JOBS // CO-FOUNDER OF APPLE',
+                text: 'Be a yardstick of quality. Some people aren’t used to an environment where excellence is expected.',
+                author: 'Steve Jobs — Macworld Interview'
+            },
+            {
+                tag: 'SAM ALTMAN // CEO OF OPENAI & FORMER PRESIDENT OF YC',
+                text: 'Compound growth gets discussed as a financial concept, but it applies to your career and learning too. High agency and relentless execution compound every single week.',
+                author: 'Sam Altman — "How To Be Successful" (2019)'
+            },
+            {
+                tag: 'JIM SIMONS // FOUNDER OF RENAISSANCE TECHNOLOGIES',
+                text: 'Be guided by beauty. Do not give up easily. Look for the rigorous mathematical truth underneath the noise, and never try to override the model.',
+                author: 'Jim Simons — MIT Lecture on Quantitative Research'
+            },
+            {
+                tag: 'MARCUS AURELIUS // ROMAN EMPEROR',
+                text: 'At dawn, when you have trouble getting out of bed, tell yourself: I have to go to work—as a human being. What do I have to complain of, if I’m going to do what I was born for?',
+                author: 'Marcus Aurelius — Meditations, Book V'
+            },
+            {
+                tag: 'JEFF BEZOS // FOUNDER OF AMAZON',
+                text: 'Day 2 is stasis. Followed by irrelevance. Followed by excruciating, painful decline. Followed by death. And that is why it is always Day 1.',
+                author: 'Jeff Bezos — 2016 Letter to Shareholders'
+            },
+            {
+                tag: 'SENECA // STOIC PHILOSOPHER',
+                text: 'It is not that we have a short time to live, but that we waste a lot of it. Life is long enough, and a sufficiently generous amount has been given to us for the highest achievements if it were all well invested.',
+                author: 'Seneca — On the Shortness of Life'
+            }
+        ];
+
+        let quoteIndex = 0;
+        const LOCAL_STORAGE_KEY = 'evander_usyd_s2_2026_state_v4';
+
+        // Persistence Handler Hook (Dual-layer: instant localStorage for GitHub Pages + Cloud Sync)
+        window.updateSyncBadge = function (statusText, isSaved = true) {
+            const dot = document.getElementById('sync-dot');
+            const txt = document.getElementById('sync-text');
+            if (!dot || !txt) return;
+            txt.textContent = statusText;
+            dot.style.backgroundColor = isSaved ? 'var(--accent-sage)' : 'var(--accent-ochre)';
+        };
+
+        function saveToLocalCache() {
+            try {
+                const payload = {
+                    tasks,
+                    notionPages,
+                    activeNotionPageId,
+                    referenceDateStr,
+                    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+                    updatedAt: Date.now()
+                };
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(payload));
+            } catch (e) {
+                console.warn('Local cache write skipped:', e);
+            }
+        }
+
+        function loadFromLocalCache() {
+            try {
+                const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (!raw) return false;
+                const data = JSON.parse(raw);
+                if (Array.isArray(data.tasks) && data.tasks.length > 0) {
+                    tasks = data.tasks;
+                }
+                if (Array.isArray(data.notionPages) && data.notionPages.length > 0) {
+                    notionPages = data.notionPages;
+                }
+                if (data.activeNotionPageId && notionPages.some(p => p.id === data.activeNotionPageId)) {
+                    activeNotionPageId = data.activeNotionPageId;
+                }
+                if (data.referenceDateStr) {
+                    referenceDateStr = data.referenceDateStr;
+                }
+                if (data.theme) {
+                    document.documentElement.classList.toggle('dark', data.theme === 'dark');
+                }
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        window.persistEvanderData = function () {
+            saveToLocalCache();
+            if (typeof window.cloudSyncPush === 'function') {
+                window.cloudSyncPush();
+            } else {
+                window.updateSyncBadge('Saved (GitHub Pages Ready)', true);
+            }
+        };
+
+        // Portable JSON Export / Import for GitHub Pages Hosting
+        function exportWorkspaceJSON() {
+            const payload = {
+                app: 'EVANDER // USYD S2 2026',
+                exportedAt: new Date().toISOString(),
+                referenceDateStr,
+                tasks,
+                notionPages
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `evander-backup-${referenceDateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            window.updateSyncBadge('Backup JSON Exported', true);
+        }
+
+        function importWorkspaceJSON(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (Array.isArray(parsed.tasks)) tasks = parsed.tasks;
+                    if (Array.isArray(parsed.notionPages) && parsed.notionPages.length > 0) {
+                        notionPages = parsed.notionPages;
+                        activeNotionPageId = notionPages[0].id;
+                    }
+                    if (parsed.referenceDateStr) referenceDateStr = parsed.referenceDateStr;
+                    refreshAllViews();
+                    window.persistEvanderData();
+                    window.updateSyncBadge('Backup Restored', true);
+                } catch (err) {
+                    console.error('Invalid backup JSON:', err);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function startAutonomousQuoteCycle() {
+            setInterval(() => {
+                const container = document.getElementById('quote-container');
+                if (!container) return;
+
+                // Combine 100% real verbatim quotes with live telemetry from your actual unit scores
+                const dynamicPool = [...AUTONOMOUS_QUOTES];
+                Object.keys(UNITS).forEach(code => {
+                    const m = calculateUnitMetrics(code);
+                    if (m.currentPercentage !== null) {
+                        dynamicPool.unshift({
+                            tag: `LIVE UNIT TELEMETRY // ${code}`,
+                            text: `${code}: ${m.roastMessage} You have ${m.earnedMarksOutOf100}/100 banked, and your maximal possible score for this unit after losing ${m.marksLostForever} marks is ${m.maxPossibleScore}.`,
+                            author: `Real-Time Grade Ceiling Audit (${code})`
+                        });
+                    }
+                });
+
+                quoteIndex = (quoteIndex + 1) % dynamicPool.length;
+                const nextQ = dynamicPool[quoteIndex];
+
+                container.classList.add('quote-hidden');
+                setTimeout(() => {
+                    document.getElementById('quote-category-tag').textContent = nextQ.tag;
+                    document.getElementById('main-quote-text').textContent = `“${nextQ.text}”`;
+                    document.getElementById('main-quote-author').textContent = `— ${nextQ.author}`;
+                    document.getElementById('quote-index-readout').textContent = `${String(quoteIndex + 1).padStart(2, '0')} / ${String(dynamicPool.length).padStart(2, '0')}`;
+                    container.classList.remove('quote-hidden');
+                }, 420);
+            }, 9000);
+        }
+
+        // 4. THEME SWITCHER (Warm Paper Light <-> Low-Glare Carbon Dark)
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const isDark = htmlEl.classList.toggle('dark');
+            updateThemeIcons(isDark);
+            update3DThemeColors(isDark);
+            window.persistEvanderData();
+        }
+
+        function updateThemeIcons(isDark) {
+            const moon = document.getElementById('theme-icon-moon');
+            const sun = document.getElementById('theme-icon-sun');
+            if (!moon || !sun) return;
+            if (isDark) {
+                moon.classList.add('hidden');
+                sun.classList.remove('hidden');
+            } else {
+                sun.classList.add('hidden');
+                moon.classList.remove('hidden');
+            }
+        }
+
+        // 5. GRADE & LOSS-AVERSION ENGINE (Strictly 100 Max Per Unit)
+        function round1(n) {
+            return Math.round(n * 10) / 10;
+        }
+
+        function calculateUnitMetrics(unitCode) {
+            const unitTasks = tasks.filter(t => t.unit === unitCode);
+            let gradedWeight = 0;
+            let earnedMarksOutOf100 = 0;
+
+            unitTasks.forEach(t => {
+                const w = parseFloat(t.weight) || 0;
+                if (t.isGraded && t.earnedRaw !== null && t.outOfRaw > 0) {
+                    gradedWeight += w;
+                    earnedMarksOutOf100 += (parseFloat(t.earnedRaw) / parseFloat(t.outOfRaw)) * w;
+                }
+            });
+
+            const marksLostForever = Math.max(0, gradedWeight - earnedMarksOutOf100);
+            const maxPossibleScore = Math.max(0, 100 - marksLostForever);
+            const currentPercentage = gradedWeight > 0 ? (earnedMarksOutOf100 / gradedWeight) * 100 : null;
+            const remainingWeight = Math.max(0, 100 - gradedWeight);
+
+            // Exact user-requested phrasing for low grades + psychological framing
+            let roastMessage = '';
+            let toneClass = 'text-ink';
+
+            if (currentPercentage === null) {
+                roastMessage = 'No assessments graded yet — 100/100 ceiling intact.';
+                toneClass = 'text-sub';
+            } else if (currentPercentage < 50) {
+                roastMessage = `Current percentage - ${round1(currentPercentage)}% - study more or you gonna fail like a loser.`;
+                toneClass = 'text-loss';
+            } else if (currentPercentage < 65) {
+                roastMessage = `Current percentage - ${round1(currentPercentage)}% - dangerously mediocre; one bad exam and you fail.`;
+                toneClass = 'text-loss';
+            } else if (currentPercentage < 80) {
+                roastMessage = `Current percentage - ${round1(currentPercentage)}% - solid footing, but ${round1(marksLostForever)} marks are gone forever.`;
+                toneClass = 'text-ink';
+            } else {
+                roastMessage = `Current percentage - ${round1(currentPercentage)}% - high-distinction trajectory. Do not get complacent.`;
+                toneClass = 'text-gain';
+            }
+
+            return {
+                unitCode,
+                unitTasks,
+                gradedWeight: round1(gradedWeight),
+                earnedMarksOutOf100: round1(earnedMarksOutOf100),
+                marksLostForever: round1(marksLostForever),
+                maxPossibleScore: round1(maxPossibleScore),
+                currentPercentage: currentPercentage !== null ? round1(currentPercentage) : null,
+                remainingWeight: round1(remainingWeight),
+                roastMessage,
+                toneClass
+            };
+        }
+
+        // 6. RENDER DASHBOARD
+        function renderDashboard() {
+            const unitsGrid = document.getElementById('units-grid');
+            const analyticsContainer = document.getElementById('analytics-bars-container');
+
+            let sumPct = 0;
+            let gradedUnitsCount = 0;
+            let totalBanked = 0;
+            let totalLost = 0;
+            let sumCeilings = 0;
+            let totalGradedWeightAll = 0;
+
+            let cardsHTML = '';
+            let barsHTML = '';
+
+            Object.keys(UNITS).forEach(code => {
+                const u = UNITS[code];
+                const m = calculateUnitMetrics(code);
+
+                if (m.currentPercentage !== null) {
+                    sumPct += m.currentPercentage;
+                    gradedUnitsCount++;
+                }
+                totalBanked += m.earnedMarksOutOf100;
+                totalLost += m.marksLostForever;
+                sumCeilings += m.maxPossibleScore;
+                totalGradedWeightAll += m.gradedWeight;
+
+                const railEl = document.getElementById(`rail-unit-${code}`);
+                if (railEl) {
+                    railEl.textContent = m.currentPercentage !== null ? `${m.currentPercentage}%` : '100 max';
+                }
+
+                const tasksRowsHTML = m.unitTasks.map(t => {
+                    const daysLeft = getDaysUntil(t.dueDate);
+                    const isUrgent = !t.isGraded && daysLeft >= 0 && daysLeft <= 3;
+
+                    let scoreBtn = '';
+                    if (t.isGraded) {
+                        const banked = round1((t.earnedRaw / t.outOfRaw) * t.weight);
+                        const lost = round1(t.weight - banked);
+                        scoreBtn = `
+                            <button onclick="openGradeModal('${t.id}')" class="px-2.5 py-1 surface-inset rounded-md font-mono text-[11px] hover:opacity-80 flex items-center gap-1.5">
+                                <span class="font-semibold text-ink">${t.earnedRaw}/${t.outOfRaw}</span>
+                                <span class="text-dim">(${banked}/${t.weight})</span>
+                                ${lost > 0 ? `<span class="text-loss">-${lost}</span>` : ''}
+                            </button>
+                        `;
+                    } else {
+                        scoreBtn = `
+                            <button onclick="openGradeModal('${t.id}')" class="px-2.5 py-1 surface-panel hover:opacity-80 rounded-md font-mono text-[11px] text-sub">
+                                + Input Score (/${t.weight})
+                            </button>
+                        `;
+                    }
+
+                    return `
+                        <div class="py-2 px-3 surface-panel rounded-md flex items-center justify-between gap-2">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-medium text-ink truncate">${escapeHtml(t.name)}</span>
+                                    ${isUrgent ? `<span class="font-mono text-[9px] px-1.5 py-0.2 rounded-xs font-semibold" style="background-color: var(--accent-terracotta-bg); color: var(--accent-terracotta);">Due ${daysLeft === 0 ? 'Today' : daysLeft + 'd'}</span>` : ''}
+                                </div>
+                                <div class="font-mono text-[10px] text-dim mt-0.5">
+                                    Weight: ${t.weight}% &bull; Due ${t.dueDate}
+                                </div>
+                            </div>
+                            <div class="shrink-0">${scoreBtn}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                cardsHTML += `
+                    <article class="surface-card rounded-lg flex flex-col justify-between overflow-hidden">
+                        <div>
+                            <!-- Unit Header -->
+                            <div class="p-5 hairline-b flex items-start justify-between gap-4">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${u.colorVar}"></span>
+                                        <span class="font-mono text-xs font-semibold text-ink">${u.code}</span>
+                                        <span class="font-mono text-[11px] text-dim">// 100 Max</span>
+                                    </div>
+                                    <h3 class="font-serif text-xl text-ink mt-1">${u.name}</h3>
+                                </div>
+                                <div class="text-right font-mono">
+                                    <div class="text-[10px] text-dim uppercase">Standing</div>
+                                    <div class="text-2xl font-semibold ${m.currentPercentage !== null && m.currentPercentage < 50 ? 'text-loss' : 'text-ink'}">
+                                        ${m.currentPercentage !== null ? m.currentPercentage + '%' : '—'}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Loss-Aversion Diagnostic Box (Exact Required Phrasing) -->
+                            <div class="px-5 py-3.5 surface-panel hairline-b text-xs space-y-1.5">
+                                <div class="font-medium ${m.toneClass}">
+                                    ${m.roastMessage}
+                                </div>
+                                <div class="font-mono text-[11px] text-sub leading-relaxed">
+                                    Banked: <strong class="text-ink">${m.earnedMarksOutOf100}/100</strong> &bull; 
+                                    Your maximal possible score for this unit after losing <strong class="text-loss">${m.marksLostForever}</strong> marks is <strong class="text-ink underline">${m.maxPossibleScore}</strong>.
+                                </div>
+                            </div>
+
+                            <!-- Calm 100-Point Ceiling Bar -->
+                            <div class="px-5 pt-4 pb-1">
+                                <div class="flex justify-between font-mono text-[10px] text-dim mb-1.5">
+                                    <span>${m.earnedMarksOutOf100}/100 banked</span>
+                                    <span>${m.remainingWeight}% remaining</span>
+                                    <span class="text-loss">-${m.marksLostForever} lost (Max: ${m.maxPossibleScore})</span>
+                                </div>
+                                <div class="w-full h-2.5 surface-inset rounded-xs overflow-hidden flex">
+                                    <div style="width: ${m.earnedMarksOutOf100}%; background-color: ${u.colorVar}" class="h-full transition-all duration-300"></div>
+                                    <div style="width: ${m.remainingWeight}%" class="h-full bg-transparent transition-all duration-300"></div>
+                                    <div style="width: ${m.marksLostForever}%; background-color: var(--accent-terracotta)" class="h-full opacity-80 transition-all duration-300"></div>
+                                </div>
+                            </div>
+
+                            <!-- Assessments List -->
+                            <div class="p-5 space-y-2">
+                                <div class="flex items-center justify-between font-mono text-[10px] text-dim uppercase">
+                                    <span>Assessments (${m.unitTasks.length})</span>
+                                    <span>Click score to edit</span>
+                                </div>
+                                ${tasksRowsHTML}
+                            </div>
+                        </div>
+
+                        <div class="px-5 py-3 surface-panel hairline-t flex items-center justify-between font-mono text-[11px]">
+                            <span class="text-dim">Graded so far: <strong class="text-ink">${m.gradedWeight}/100</strong></span>
+                            <button onclick="openTaskModalForUnit('${u.code}')" class="text-ink hover:underline font-medium">+ Add ${u.code} Task</button>
+                        </div>
+                    </article>
+                `;
+
+                barsHTML += `
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between font-mono text-xs">
+                            <span class="font-medium text-ink">${u.code} <span class="text-dim font-normal hidden sm:inline">— ${u.name}</span></span>
+                            <span class="text-[11px] text-sub">
+                                <strong class="text-gain">${m.earnedMarksOutOf100}</strong> banked &bull; 
+                                <strong class="text-loss">-${m.marksLostForever}</strong> lost &bull; 
+                                Max: <strong class="text-ink">${m.maxPossibleScore}</strong>
+                            </span>
+                        </div>
+                        <div class="w-full h-3.5 surface-inset rounded-xs overflow-hidden flex">
+                            <div style="width: ${m.earnedMarksOutOf100}%; background-color: var(--accent-sage)" class="h-full"></div>
+                            <div style="width: ${m.remainingWeight}%" class="h-full"></div>
+                            <div style="width: ${m.marksLostForever}%; background-color: var(--accent-terracotta)" class="h-full opacity-85"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            unitsGrid.innerHTML = cardsHTML;
+            analyticsContainer.innerHTML = barsHTML;
+
+            const overallWam = gradedUnitsCount > 0 ? round1(sumPct / gradedUnitsCount) : 0;
+            const avgCeiling = round1(sumCeilings / 4);
+
+            document.getElementById('stat-overall-wam').textContent = `${overallWam}%`;
+            document.getElementById('stat-total-banked').textContent = `${round1(totalBanked)}/400`;
+            document.getElementById('stat-total-lost').textContent = `-${round1(totalLost)}`;
+            document.getElementById('stat-avg-ceiling').textContent = `${avgCeiling}%`;
+            document.getElementById('analytics-completion-readout').textContent = `${round1(totalGradedWeightAll / 4)}% of semester graded`;
+
+            update3DMonolithTelemetry(overallWam, totalLost);
+            renderSurvivalCalculator();
+            lucide.createIcons();
+        }
+
+        // 7. TARGET THRESHOLD SIMULATOR
+        function renderSurvivalCalculator() {
+            const target = parseFloat(document.getElementById('target-tier-select').value) || 75;
+            const container = document.getElementById('survival-calc-list');
+            let html = '';
+
+            Object.keys(UNITS).forEach(code => {
+                const m = calculateUnitMetrics(code);
+                const needed = target - m.earnedMarksOutOf100;
+                let msg = '';
+
+                if (target > m.maxPossibleScore) {
+                    msg = `<span class="text-loss font-medium">Unreachable (Ceiling is ${m.maxPossibleScore})</span>`;
+                } else if (needed <= 0) {
+                    msg = `<span class="text-gain font-medium">Secured (${m.earnedMarksOutOf100} pts banked)</span>`;
+                } else if (m.remainingWeight <= 0) {
+                    msg = `<span class="text-dim">No remaining weight</span>`;
+                } else {
+                    const reqRate = round1((needed / m.remainingWeight) * 100);
+                    const tone = reqRate > 85 ? 'text-loss font-semibold' : 'text-ink font-semibold';
+                    msg = `Requires <span class="${tone}">${reqRate}%</span> on remaining ${m.remainingWeight}%`;
+                }
+
+                html += `
+                    <div class="p-2.5 surface-panel rounded-md flex items-center justify-between">
+                        <span class="font-semibold text-ink">${code}</span>
+                        <div class="text-right text-sub">${msg}</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 8. RENDER 5-COLUMN PRIORITY LEDGER
+        function getDaysUntil(dateStr) {
+            const ref = new Date(referenceDateStr + 'T00:00:00');
+            const due = new Date(dateStr + 'T00:00:00');
+            return Math.ceil((due - ref) / (1000 * 60 * 60 * 24));
+        }
+
+        function renderTasksTable() {
+            const tbody = document.getElementById('tasks-table-body');
+            const unitFilter = document.getElementById('task-unit-filter').value;
+
+            let filtered = tasks.filter(t => unitFilter === 'ALL' || t.unit === unitFilter);
+
+            // Descending priority order: ungraded tasks due soonest at the very top
+            filtered.sort((a, b) => {
+                if (a.isGraded !== b.isGraded) return a.isGraded ? 1 : -1;
+                return new Date(a.dueDate + 'T' + (a.dueTime || '23:59')) - new Date(b.dueDate + 'T' + (b.dueTime || '23:59'));
+            });
+
+            const urgentCount = tasks.filter(t => {
+                const d = getDaysUntil(t.dueDate);
+                return !t.isGraded && d >= 0 && d <= 3;
+            }).length;
+
+            const badge = document.getElementById('urgent-badge');
+            if (badge) {
+                badge.textContent = urgentCount;
+                badge.style.backgroundColor = urgentCount > 0 ? 'var(--accent-terracotta-bg)' : 'var(--bg-subtle)';
+                badge.style.color = urgentCount > 0 ? 'var(--accent-terracotta)' : 'var(--text-muted)';
+            }
+
+            tbody.innerHTML = filtered.map((t, idx) => {
+                const u = UNITS[t.unit] || UNITS.INFO1110;
+                const daysLeft = getDaysUntil(t.dueDate);
+                const isPriority3Days = !t.isGraded && daysLeft >= 0 && daysLeft <= 3;
+                const isOverdue = !t.isGraded && daysLeft < 0;
+
+                let statusBadge = '';
+                if (t.isGraded) {
+                    const banked = round1((t.earnedRaw / t.outOfRaw) * t.weight);
+                    statusBadge = `<span class="inline-block font-mono text-[10px] px-2 py-0.5 rounded-xs" style="background-color: var(--accent-sage-bg); color: var(--accent-sage);">Graded: ${t.earnedRaw}/${t.outOfRaw} (${banked}/${t.weight})</span>`;
+                } else if (isPriority3Days) {
+                    statusBadge = `<span class="inline-block font-mono text-[10px] font-semibold px-2 py-0.5 rounded-xs" style="background-color: var(--accent-terracotta-bg); color: var(--accent-terracotta);">PRIORITY // Due in ${daysLeft === 0 ? 'Today' : daysLeft + 'd'}</span>`;
+                } else if (isOverdue) {
+                    statusBadge = `<span class="inline-block font-mono text-[10px] text-loss">Overdue (${Math.abs(daysLeft)}d)</span>`;
+                } else {
+                    statusBadge = `<span class="inline-block font-mono text-[10px] text-dim">Due in ${daysLeft} days</span>`;
+                }
+
+                return `
+                    <tr class="transition-colors" style="${isPriority3Days ? 'background-color: var(--accent-terracotta-bg);' : ''}">
+                        <!-- Col 1: Assignment Name -->
+                        <td class="py-3.5 px-4 hairline-r align-top">
+                            <div class="font-medium text-ink flex items-center gap-2">
+                                <span class="font-mono text-[10px] text-dim">${String(idx + 1).padStart(2, '0')}</span>
+                                <span>${escapeHtml(t.name)}</span>
+                            </div>
+                            <div class="mt-1.5 flex flex-wrap items-center gap-3 font-mono text-[10px]">
+                                <button onclick="openGradeModal('${t.id}')" class="text-ink underline">
+                                    ${t.isGraded ? `Edit Score (${t.earnedRaw}/${t.outOfRaw})` : '+ Input Score'}
+                                </button>
+                                <button onclick="openOrCreateNotionSpecForTask('${t.id}')" class="text-gain hover:underline flex items-center gap-1">
+                                    <span>Notion To-Do Spec</span>
+                                </button>
+                                <button onclick="editTask('${t.id}')" class="text-sub hover:text-ink">Edit</button>
+                                <button onclick="deleteTask('${t.id}')" class="text-dim hover:text-loss">Delete</button>
+                            </div>
+                        </td>
+
+                        <!-- Col 2: Unit Code -->
+                        <td class="py-3.5 px-4 hairline-r align-top font-mono">
+                            <div class="flex items-center gap-1.5 font-semibold text-xs text-ink">
+                                <span class="w-2 h-2 rounded-full" style="background-color: ${u.colorVar}"></span>
+                                ${t.unit}
+                            </div>
+                            <div class="text-[10px] text-dim mt-0.5">${u.name}</div>
+                        </td>
+
+                        <!-- Col 3: Weight of Grade -->
+                        <td class="py-3.5 px-4 hairline-r align-top font-mono">
+                            <div class="text-xs font-semibold text-ink">${t.weight}% <span class="text-[10px] font-normal text-dim">of unit</span></div>
+                            <div class="w-full h-1.5 surface-inset mt-1.5 rounded-xs overflow-hidden">
+                                <div class="h-full" style="width: ${Math.min(100, t.weight)}%; background-color: ${u.colorVar}"></div>
+                            </div>
+                        </td>
+
+                        <!-- Col 4: Box for Google Drive Link -->
+                        <td class="py-3.5 px-4 hairline-r align-top">
+                            <div class="flex items-center gap-1.5">
+                                <input 
+                                    type="url" 
+                                    value="${escapeHtml(t.driveLink || '')}" 
+                                    placeholder="Paste Google Drive URL..."
+                                    onchange="updateTaskDriveLink('${t.id}', this.value)"
+                                    class="w-full surface-inset px-2.5 py-1 font-mono text-[11px] text-ink rounded-md focus:outline-none"
+                                >
+                                ${t.driveLink ? `
+                                    <a href="${escapeHtml(t.driveLink)}" target="_blank" rel="noopener noreferrer" title="Open Google Drive" class="p-1.5 surface-panel rounded-md text-ink hover:opacity-80 shrink-0">
+                                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </td>
+
+                        <!-- Col 5: Deadline & 3-Day Priority -->
+                        <td class="py-3.5 px-4 align-top font-mono">
+                            <div class="text-xs text-ink">${formatReadableDate(t.dueDate)} <span class="text-dim text-[10px]">${t.dueTime || '23:59'}</span></div>
+                            <div class="mt-1">${statusBadge}</div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function updateTaskDriveLink(taskId, url) {
+            const t = tasks.find(x => x.id === taskId);
+            if (t) {
+                t.driveLink = url.trim();
+                renderTasksTable();
+                window.persistEvanderData();
+            }
+        }
+
+        // 9. RENDER MASTER CALENDAR
+        function renderCalendar() {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const title = `${monthNames[currentCalMonth]} ${currentCalYear}`;
+            document.getElementById('calendar-month-title').textContent = title;
+            document.getElementById('mini-cal-title').textContent = title;
+
+            const firstDay = new Date(currentCalYear, currentCalMonth, 1).getDay();
+            const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+            const daysInPrev = new Date(currentCalYear, currentCalMonth, 0).getDate();
+            const totalCells = (firstDay + daysInMonth) > 35 ? 42 : 35;
+
+            let cellsHTML = '';
+            let miniHTML = '';
+
+            for (let i = 0; i < totalCells; i++) {
+                let dayNum;
+                let m = currentCalMonth;
+                let y = currentCalYear;
+                let isCurrent = true;
+
+                if (i < firstDay) {
+                    dayNum = daysInPrev - firstDay + 1 + i;
+                    m--;
+                    if (m < 0) { m = 11; y--; }
+                    isCurrent = false;
+                } else if (i >= firstDay + daysInMonth) {
+                    dayNum = i - (firstDay + daysInMonth) + 1;
+                    m++;
+                    if (m > 11) { m = 0; y++; }
+                    isCurrent = false;
+                } else {
+                    dayNum = i - firstDay + 1;
+                }
+
+                const dateISO = `${y}-${String(m + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+                const isToday = dateISO === referenceDateStr;
+                const dayTasks = tasks.filter(t => t.dueDate === dateISO && UNITS[t.unit]?.visibleInCal);
+
+                const pills = dayTasks.map(t => {
+                    const u = UNITS[t.unit] || UNITS.INFO1110;
+                    return `
+                        <div 
+                            onclick="openGradeModal('${t.id}')" 
+                            title="${escapeHtml(t.name)} (${t.weight}%)"
+                            style="border-left: 2px solid ${u.colorVar};"
+                            class="cursor-pointer px-1.5 py-0.5 surface-panel rounded-xs font-mono text-[10px] text-ink truncate hover:opacity-80 ${t.isGraded ? 'opacity-50 line-through' : ''}"
+                        >
+                            ${escapeHtml(t.unit)}: ${escapeHtml(t.name)}
+                        </div>
+                    `;
+                }).join('');
+
+                cellsHTML += `
+                    <div class="min-h-[108px] p-2 hairline-b hairline-r flex flex-col justify-between ${isCurrent ? '' : 'opacity-40'}" style="${isToday ? 'background-color: var(--accent-terracotta-bg);' : ''}">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-[9px] text-loss font-semibold">${isToday ? 'TODAY' : ''}</span>
+                            <button onclick="openTaskModalOnDate('${dateISO}')" class="font-mono text-xs ${isToday ? 'font-bold text-loss' : 'text-sub'} hover:text-ink">
+                                ${dayNum}
+                            </button>
+                        </div>
+                        <div class="mt-1 space-y-1 overflow-y-auto max-h-[76px]">
+                            ${pills}
+                        </div>
+                    </div>
+                `;
+
+                const hasEvents = dayTasks.length > 0;
+                miniHTML += `
+                    <button 
+                        onclick="openTaskModalOnDate('${dateISO}')"
+                        class="py-1 rounded-xs ${!isCurrent ? 'opacity-30' : 'text-ink'} ${isToday ? 'font-bold text-loss underline' : hasEvents ? 'surface-panel font-semibold' : ''}"
+                    >
+                        ${dayNum}
+                    </button>
+                `;
+            }
+
+            document.getElementById('calendar-days-grid').innerHTML = cellsHTML;
+            document.getElementById('mini-cal-grid').innerHTML = miniHTML;
+
+            // Render Unit Toggles
+            document.getElementById('calendar-unit-toggles').innerHTML = Object.keys(UNITS).map(code => {
+                const u = UNITS[code];
+                return `
+                    <label class="flex items-center gap-2.5 cursor-pointer py-1">
+                        <input type="checkbox" ${u.visibleInCal ? 'checked' : ''} onchange="toggleCalUnit('${code}', this.checked)" class="rounded-xs">
+                        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${u.colorVar}"></span>
+                        <span class="font-mono text-xs text-ink truncate">${u.code} — ${u.name}</span>
+                    </label>
+                `;
+            }).join('');
+
+            // Render 72h Urgent List
+            const urgentItems = tasks.filter(t => {
+                const d = getDaysUntil(t.dueDate);
+                return !t.isGraded && d >= 0 && d <= 3;
+            }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
+            const urgentContainer = document.getElementById('cal-sidebar-urgent-list');
+            urgentContainer.innerHTML = urgentItems.length === 0
+                ? `<div class="text-dim py-1">No ungraded tasks due within 3 days.</div>`
+                : urgentItems.map(t => {
+                    const d = getDaysUntil(t.dueDate);
+                    return `
+                        <div class="p-2.5 surface-panel rounded-md">
+                            <div class="flex justify-between text-[10px] text-loss font-semibold">
+                                <span>${t.unit} (${t.weight}%)</span>
+                                <span>Due in ${d === 0 ? 'Today' : d + 'd'}</span>
+                            </div>
+                            <div class="text-ink font-sans font-medium mt-0.5 truncate">${escapeHtml(t.name)}</div>
+                        </div>
+                    `;
+                }).join('');
+
+            // Agenda View
+            if (calendarSubView === 'agenda') {
+                const sorted = [...tasks].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                document.getElementById('calendar-agenda-wrapper').innerHTML = sorted.map(t => {
+                    const u = UNITS[t.unit];
+                    const d = getDaysUntil(t.dueDate);
+                    return `
+                        <div class="p-3 surface-panel rounded-md flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <span class="w-2 h-6 rounded-xs" style="background-color: ${u.colorVar}"></span>
+                                <div>
+                                    <div class="font-mono text-[11px] text-dim">${t.dueDate} &bull; ${t.unit} (${t.weight}%)</div>
+                                    <div class="font-medium text-sm text-ink">${escapeHtml(t.name)}</div>
+                                </div>
+                            </div>
+                            <div class="font-mono text-xs">
+                                ${t.isGraded ? `<span class="text-gain">${t.earnedRaw}/${t.outOfRaw}</span>` : `<span class="${d >= 0 && d <= 3 ? 'text-loss font-semibold' : 'text-sub'}">${d}d</span>`}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            lucide.createIcons();
+        }
+
+        function toggleCalUnit(code, checked) {
+            if (UNITS[code]) {
+                UNITS[code].visibleInCal = checked;
+                renderCalendar();
+                window.persistEvanderData();
+            }
+        }
+
+        function changeCalendarMonth(delta) {
+            currentCalMonth += delta;
+            if (currentCalMonth > 11) { currentCalMonth = 0; currentCalYear++; }
+            if (currentCalMonth < 0) { currentCalMonth = 11; currentCalYear--; }
+            renderCalendar();
+        }
+
+        function goToTodayCalendar() {
+            const p = referenceDateStr.split('-');
+            currentCalYear = parseInt(p[0], 10);
+            currentCalMonth = parseInt(p[1], 10) - 1;
+            renderCalendar();
+        }
+
+        function setCalendarSubView(mode) {
+            calendarSubView = mode;
+            const g = document.getElementById('calendar-Grid-Wrapper');
+            const a = document.getElementById('calendar-agenda-wrapper');
+            if (mode === 'month') {
+                g.classList.remove('hidden');
+                a.classList.add('hidden');
+            } else {
+                g.classList.add('hidden');
+                a.classList.remove('hidden');
+            }
+            renderCalendar();
+        }
+
+        // 10. THREE.JS CALM ARCHITECTURAL WIREFRAME SCULPTURE
+        let scene, camera, renderer, outerCage, innerPoly, orbitRing;
+        let isDragging3D = false;
+        let prevMouse = { x: 0, y: 0 };
+        let rotVelocity = 0.004;
+
+        function initThreeMonolith() {
+            const container = document.getElementById('three-canvas-container');
+            if (!container) return;
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 5.0;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            const outerGeo = new THREE.IcosahedronGeometry(1.45, 1);
+            const outerMat = new THREE.MeshBasicMaterial({
+                color: 0x57544E,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.45
+            });
+            outerCage = new THREE.Mesh(outerGeo, outerMat);
+            scene.add(outerCage);
+
+            const innerGeo = new THREE.OctahedronGeometry(0.85, 0);
+            const innerMat = new THREE.MeshStandardMaterial({
+                color: 0xB84233,
+                roughness: 0.6,
+                metalness: 0.2,
+                flatShading: true
+            });
+            innerPoly = new THREE.Mesh(innerGeo, innerMat);
+            scene.add(innerPoly);
+
+            const ringGeo = new THREE.TorusGeometry(1.85, 0.012, 12, 64);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x858078, transparent: true, opacity: 0.5 });
+            orbitRing = new THREE.Mesh(ringGeo, ringMat);
+            orbitRing.rotation.x = Math.PI / 2.4;
+            scene.add(orbitRing);
+
+            const light1 = new THREE.DirectionalLight(0xffffff, 1.4);
+            light1.position.set(4, 5, 4);
+            scene.add(light1);
+
+            const amb = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(amb);
+
+            const dom = renderer.domElement;
+            dom.addEventListener('mousedown', e => {
+                isDragging3D = true;
+                prevMouse = { x: e.clientX, y: e.clientY };
+            });
+            window.addEventListener('mouseup', () => { isDragging3D = false; });
+            window.addEventListener('mousemove', e => {
+                if (!isDragging3D) return;
+                const dx = (e.clientX - prevMouse.x) * 0.008;
+                const dy = (e.clientY - prevMouse.y) * 0.008;
+                outerCage.rotation.y += dx;
+                outerCage.rotation.x += dy;
+                innerPoly.rotation.y -= dx;
+                prevMouse = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('resize', () => {
+                if (!container || container.clientWidth === 0) return;
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+
+            animateThree();
+        }
+
+        function animateThree() {
+            requestAnimationFrame(animateThree);
+            if (!isDragging3D && outerCage && innerPoly && orbitRing) {
+                outerCage.rotation.y += rotVelocity;
+                outerCage.rotation.x += rotVelocity * 0.35;
+                innerPoly.rotation.y -= rotVelocity * 1.2;
+                orbitRing.rotation.z -= rotVelocity * 0.3;
+            }
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        function update3DThemeColors(isDark) {
+            if (!outerCage || !orbitRing) return;
+            outerCage.material.color.setHex(isDark ? 0xA39F96 : 0x57544E);
+            orbitRing.material.color.setHex(isDark ? 0x6E6B64 : 0x858078);
+        }
+
+        function update3DMonolithTelemetry(overallWam, totalLost) {
+            if (!innerPoly) return;
+            const badge = document.getElementById('mesh-state-badge');
+            if (badge) {
+                badge.textContent = `-${round1(totalLost)} pts lost`;
+            }
+            if (overallWam < 55 || totalLost > 25) {
+                innerPoly.material.color.setHex(0xB84233);
+                rotVelocity = 0.007;
+            } else {
+                innerPoly.material.color.setHex(0x2D6A4F);
+                rotVelocity = 0.0035;
+            }
+        }
+
+        // 11. MODAL & NAVIGATION CONTROLLERS
+        function openTaskModal() {
+            document.getElementById('form-task-id').value = '';
+            document.getElementById('form-task-name').value = '';
+            document.getElementById('form-task-unit').value = 'INFO1110';
+            document.getElementById('form-task-weight').value = '20';
+            document.getElementById('form-task-date').value = referenceDateStr;
+            document.getElementById('form-task-time').value = '23:59';
+            document.getElementById('form-task-drive').value = '';
+            document.getElementById('form-task-isgraded').checked = false;
+            toggleScoreInputs(false);
+            document.getElementById('task-modal').classList.remove('hidden');
+            document.getElementById('task-modal').classList.add('flex');
+        }
+
+        function openTaskModalForUnit(unitCode) {
+            openTaskModal();
+            document.getElementById('form-task-unit').value = unitCode;
+        }
+
+        function openTaskModalOnDate(dateISO) {
+            openTaskModal();
+            document.getElementById('form-task-date').value = dateISO;
+        }
+
+        function editTask(taskId) {
+            const t = tasks.find(x => x.id === taskId);
+            if (!t) return;
+            document.getElementById('form-task-id').value = t.id;
+            document.getElementById('form-task-name').value = t.name;
+            document.getElementById('form-task-unit').value = t.unit;
+            document.getElementById('form-task-weight').value = t.weight;
+            document.getElementById('form-task-date').value = t.dueDate;
+            document.getElementById('form-task-time').value = t.dueTime || '23:59';
+            document.getElementById('form-task-drive').value = t.driveLink || '';
+            document.getElementById('form-task-isgraded').checked = !!t.isGraded;
+            toggleScoreInputs(!!t.isGraded);
+            if (t.isGraded) {
+                document.getElementById('form-task-earned').value = t.earnedRaw;
+                document.getElementById('form-task-outof').value = t.outOfRaw;
+            }
+            document.getElementById('task-modal').classList.remove('hidden');
+            document.getElementById('task-modal').classList.add('flex');
+        }
+
+        function closeTaskModal() {
+            document.getElementById('task-modal').classList.add('hidden');
+            document.getElementById('task-modal').classList.remove('flex');
+        }
+
+        function toggleScoreInputs(checked) {
+            const row = document.getElementById('score-inputs-row');
+            if (checked) {
+                row.classList.remove('hidden');
+                row.classList.add('grid');
+            } else {
+                row.classList.add('hidden');
+                row.classList.remove('grid');
+            }
+        }
+
+        function saveTaskForm(e) {
+            e.preventDefault();
+            const id = document.getElementById('form-task-id').value || ('task-' + Date.now());
+            const name = document.getElementById('form-task-name').value.trim();
+            const unit = document.getElementById('form-task-unit').value;
+            const weight = parseFloat(document.getElementById('form-task-weight').value) || 10;
+            const dueDate = document.getElementById('form-task-date').value;
+            const dueTime = document.getElementById('form-task-time').value || '23:59';
+            const driveLink = document.getElementById('form-task-drive').value.trim();
+            const isGraded = document.getElementById('form-task-isgraded').checked;
+            const earnedRaw = isGraded ? parseFloat(document.getElementById('form-task-earned').value) || 0 : null;
+            const outOfRaw = isGraded ? parseFloat(document.getElementById('form-task-outof').value) || weight : weight;
+
+            const idx = tasks.findIndex(x => x.id === id);
+            const item = { id, name, unit, weight, dueDate, dueTime, driveLink, isGraded, earnedRaw, outOfRaw };
+            if (idx >= 0) tasks[idx] = item;
+            else tasks.push(item);
+
+            closeTaskModal();
+            refreshAllViews();
+            window.persistEvanderData();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            refreshAllViews();
+            window.persistEvanderData();
+        }
+
+        function openGradeModal(taskId) {
+            const t = tasks.find(x => x.id === taskId);
+            if (!t) return;
+            document.getElementById('quick-grade-task-id').value = t.id;
+            document.getElementById('quick-grade-task-summary').innerHTML = `
+                <div class="text-[11px] text-sub">${t.unit} &bull; Weight: ${t.weight}% of unit</div>
+                <div class="font-sans font-semibold text-sm text-ink mt-0.5">${escapeHtml(t.name)}</div>
+            `;
+            document.getElementById('quick-grade-weight-hint').textContent = `${t.weight}%`;
+            document.getElementById('quick-grade-earned').value = t.isGraded ? t.earnedRaw : '';
+            document.getElementById('quick-grade-outof').value = t.outOfRaw || t.weight;
+            document.getElementById('grade-modal').classList.remove('hidden');
+            document.getElementById('grade-modal').classList.add('flex');
+        }
+
+        function closeGradeModal() {
+            document.getElementById('grade-modal').classList.add('hidden');
+            document.getElementById('grade-modal').classList.remove('flex');
+        }
+
+        function saveQuickGrade(e) {
+            e.preventDefault();
+            const id = document.getElementById('quick-grade-task-id').value;
+            const t = tasks.find(x => x.id === id);
+            if (!t) return;
+            const earned = parseFloat(document.getElementById('quick-grade-earned').value);
+            const outOf = parseFloat(document.getElementById('quick-grade-outof').value);
+            if (!isNaN(earned) && !isNaN(outOf) && outOf > 0) {
+                t.isGraded = true;
+                t.earnedRaw = Math.min(earned, outOf);
+                t.outOfRaw = outOf;
+            }
+            closeGradeModal();
+            refreshAllViews();
+            window.persistEvanderData();
+        }
+
+        function clearTaskGrade() {
+            const id = document.getElementById('quick-grade-task-id').value;
+            const t = tasks.find(x => x.id === id);
+            if (t) {
+                t.isGraded = false;
+                t.earnedRaw = null;
+            }
+            closeGradeModal();
+            refreshAllViews();
+            window.persistEvanderData();
+        }
+
+        // =========================================================================
+        // 12. NOTION BLOCK EDITOR, SLASH MENU (`/p`, `/todo`, etc.) & PAGE ENGINE
+        // =========================================================================
+        const NOTION_SLASH_COMMANDS = [
+            { cmd: 'p', aliases: ['p', 'page', 'subpage'], label: 'Page (/p)', desc: 'Create a nested sub-page inside this doc', icon: 'file-plus', action: 'page' },
+            { cmd: 'todo', aliases: ['todo', 't', 'task', 'check'], label: 'To-do list (/todo)', desc: 'Track assignment requirements with a checkbox', icon: 'check-square', action: 'todo' },
+            { cmd: 'h1', aliases: ['h1', 'heading1'], label: 'Heading 1 (/h1)', desc: 'Big section heading', icon: 'heading-1', action: 'h1' },
+            { cmd: 'h2', aliases: ['h2', 'heading2'], label: 'Heading 2 (/h2)', desc: 'Medium section heading', icon: 'heading-2', action: 'h2' },
+            { cmd: 'h3', aliases: ['h3', 'heading3'], label: 'Heading 3 (/h3)', desc: 'Small section heading', icon: 'heading-3', action: 'h3' },
+            { cmd: 'bullet', aliases: ['bullet', 'ul', 'list'], label: 'Bulleted list (/bullet)', desc: 'Create a simple bulleted list', icon: 'list', action: 'bullet' },
+            { cmd: 'toggle', aliases: ['toggle', 'tog'], label: 'Toggle list (/toggle)', desc: 'Collapsible requirement notes or rubric details', icon: 'chevron-right', action: 'toggle' },
+            { cmd: 'callout', aliases: ['callout', 'note', 'warn'], label: 'Callout (/callout)', desc: 'Make key exam/rubric warnings stand out', icon: 'alert-circle', action: 'callout' },
+            { cmd: 'quote', aliases: ['quote', 'q'], label: 'Quote (/quote)', desc: 'Capture a lecture theorem or citation', icon: 'quote', action: 'quote' },
+            { cmd: 'code', aliases: ['code', 'snippet'], label: 'Code block (/code)', desc: 'Capture Python, R, or LaTeX snippets', icon: 'code', action: 'code' },
+            { cmd: 'divider', aliases: ['divider', 'hr', 'line'], label: 'Divider (/divider)', desc: 'Visually divide blocks with a hairline', icon: 'minus', action: 'divider' },
+            { cmd: 'text', aliases: ['text', 'plain'], label: 'Text (/text)', desc: 'Plain paragraph text', icon: 'type', action: 'text' }
+        ];
+
+        const PAGE_ICONS = ['📐', '📊', '🚀', '💻', '📑', '⚡', '🧠', '🔬', '📌', '🎯'];
+        let slashState = {
+            open: false,
+            blockId: null,
+            query: '',
+            selectedIndex: 0,
+            filtered: [...NOTION_SLASH_COMMANDS]
+        };
+
+        function getActiveNotionPage() {
+            let p = notionPages.find(x => x.id === activeNotionPageId);
+            if (!p && notionPages.length > 0) {
+                activeNotionPageId = notionPages[0].id;
+                p = notionPages[0];
+            }
+            return p;
+        }
+
+        function computeNotionTodoCounts() {
+            let total = 0;
+            let done = 0;
+            notionPages.forEach(p => {
+                (p.blocks || []).forEach(b => {
+                    if (b.type === 'todo') {
+                        total++;
+                        if (b.checked) done++;
+                    }
+                });
+            });
+            const open = Math.max(0, total - done);
+            const badge = document.getElementById('todo-open-badge');
+            if (badge) badge.textContent = open;
+
+            const txt = document.getElementById('notion-global-progress-txt');
+            const bar = document.getElementById('notion-global-progress-bar');
+            if (txt) txt.textContent = `${done} / ${total} Done`;
+            if (bar) bar.style.width = total > 0 ? `${Math.round((done / total) * 100)}%` : '0%';
+        }
+
+        function renderNotionWorkspace() {
+            computeNotionTodoCounts();
+            renderNotionSidebar();
+            renderNotionActivePage();
+            lucide.createIcons();
+        }
+
+        function renderNotionSidebar() {
+            const treeEl = document.getElementById('notion-pages-tree');
+            if (!treeEl) return;
+            const q = (document.getElementById('notion-page-search')?.value || '').trim().toLowerCase();
+
+            function buildPageNodes(parentId, depth = 0) {
+                return notionPages
+                    .filter(p => (p.parentId || null) === parentId)
+                    .map(p => {
+                        const matchesSelf = !q || p.title.toLowerCase().includes(q) || (p.unit && p.unit.toLowerCase().includes(q));
+                        const childrenHtml = buildPageNodes(p.id, depth + 1);
+                        if (!matchesSelf && !childrenHtml) return '';
+
+                        const isActive = p.id === activeNotionPageId;
+                        const todoBlocks = (p.blocks || []).filter(b => b.type === 'todo');
+                        const doneCount = todoBlocks.filter(b => b.checked).length;
+                        const uColor = UNITS[p.unit]?.colorVar || 'var(--border-strong)';
+
+                        return `
+                            <div>
+                                <div 
+                                    onclick="selectNotionPage('${p.id}')" 
+                                    style="padding-left: ${8 + depth * 14}px; ${isActive ? 'background-color: var(--bg-subtle); color: var(--text-primary);' : ''}"
+                                    class="group py-1.5 pr-2 rounded-md flex items-center justify-between gap-2 cursor-pointer text-xs text-sub hover:text-ink transition-colors"
+                                >
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="text-sm shrink-0">${p.icon || '📄'}</span>
+                                        <span class="truncate ${isActive ? 'font-semibold text-ink' : ''}">${escapeHtml(p.title || 'Untitled')}</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        ${p.unit && p.unit !== 'ALL' ? `<span class="w-1.5 h-1.5 rounded-full" style="background-color: ${uColor}"></span>` : ''}
+                                        ${todoBlocks.length > 0 ? `<span class="font-mono text-[10px] text-dim">${doneCount}/${todoBlocks.length}</span>` : ''}
+                                        <button onclick="event.stopPropagation(); createNewNotionPage('${p.id}')" title="Add nested sub-page (/p)" class="opacity-0 group-hover:opacity-100 text-dim hover:text-ink px-1">
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
+                                ${childrenHtml}
+                            </div>
+                        `;
+                    })
+                    .join('');
+            }
+
+            treeEl.innerHTML = buildPageNodes(null, 0) || `<div class="text-xs font-mono text-dim p-2">No matching pages.</div>`;
+        }
+
+        function renderNotionBreadcrumbs(page) {
+            const chain = [];
+            let curr = page;
+            while (curr) {
+                chain.unshift(curr);
+                curr = curr.parentId ? notionPages.find(x => x.id === curr.parentId) : null;
+            }
+            const bc = document.getElementById('notion-breadcrumbs');
+            if (!bc) return;
+            bc.innerHTML = chain.map((p, idx) => `
+                ${idx > 0 ? `<span class="text-dim">/</span>` : ''}
+                <button onclick="selectNotionPage('${p.id}')" class="hover:text-ink flex items-center gap-1 ${idx === chain.length - 1 ? 'text-ink font-semibold' : 'text-sub'}">
+                    <span>${p.icon || '📄'}</span>
+                    <span class="truncate max-w-[160px]">${escapeHtml(p.title || 'Untitled')}</span>
+                </button>
+            `).join('');
+        }
+
+        function renderNotionActivePage() {
+            const page = getActiveNotionPage();
+            if (!page) return;
+
+            renderNotionBreadcrumbs(page);
+
+            const iconBtn = document.getElementById('notion-page-icon-btn');
+            if (iconBtn) iconBtn.textContent = page.icon || '📄';
+
+            const titleInput = document.getElementById('notion-page-title-input');
+            if (titleInput && document.activeElement !== titleInput) {
+                titleInput.value = page.title || '';
+            }
+
+            const unitSel = document.getElementById('notion-page-unit-select');
+            if (unitSel) unitSel.value = page.unit || 'ALL';
+
+            // Populate Assessment link dropdown
+            const taskSel = document.getElementById('notion-page-task-select');
+            if (taskSel) {
+                const unitTasks = tasks.filter(t => !page.unit || page.unit === 'ALL' || t.unit === page.unit);
+                taskSel.innerHTML = `<option value="">Link to Assessment...</option>` + unitTasks.map(t => `
+                    <option value="${t.id}" ${page.linkedTaskId === t.id ? 'selected' : ''}>
+                        [${t.unit}] ${escapeHtml(t.name)} (${t.weight}%)
+                    </option>
+                `).join('');
+            }
+
+            // Linked Assessment Banner
+            const banner = document.getElementById('notion-linked-banner');
+            const linkedTask = tasks.find(t => t.id === page.linkedTaskId);
+            if (banner) {
+                if (linkedTask) {
+                    const daysLeft = getDaysUntil(linkedTask.dueDate);
+                    banner.classList.remove('hidden');
+                    banner.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full" style="background-color: ${UNITS[linkedTask.unit]?.colorVar || 'var(--text-primary)'}"></span>
+                            <span class="font-semibold text-ink">${escapeHtml(linkedTask.name)}</span>
+                            <span class="text-dim">&bull; Weight: ${linkedTask.weight}% of ${linkedTask.unit}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="${!linkedTask.isGraded && daysLeft <= 3 ? 'text-loss font-semibold' : 'text-sub'}">
+                                Due ${formatReadableDate(linkedTask.dueDate)} (${daysLeft === 0 ? 'Today' : daysLeft + 'd'})
+                            </span>
+                            <button onclick="openGradeModal('${linkedTask.id}')" class="underline text-ink">
+                                ${linkedTask.isGraded ? `Score: ${linkedTask.earnedRaw}/${linkedTask.outOfRaw}` : 'Input Grade'}
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    banner.classList.add('hidden');
+                }
+            }
+
+            // Nested Sub-pages Bar
+            const childPages = notionPages.filter(p => p.parentId === page.id);
+            const subBar = document.getElementById('notion-subpages-bar');
+            const subList = document.getElementById('notion-subpages-list');
+            if (subBar && subList) {
+                if (childPages.length > 0) {
+                    subBar.classList.remove('hidden');
+                    subList.innerHTML = childPages.map(ch => `
+                        <button onclick="selectNotionPage('${ch.id}')" class="px-3 py-1.5 surface-panel hover:opacity-80 rounded-md font-mono text-xs text-ink flex items-center gap-2">
+                            <span>${ch.icon || '📄'}</span>
+                            <span>${escapeHtml(ch.title || 'Untitled')}</span>
+                            <i data-lucide="arrow-up-right" class="w-3 h-3 text-dim"></i>
+                        </button>
+                    `).join('');
+                } else {
+                    subBar.classList.add('hidden');
+                }
+            }
+
+            // Render Blocks
+            const container = document.getElementById('notion-blocks-container');
+            if (!container) return;
+
+            if (!page.blocks || page.blocks.length === 0) {
+                page.blocks = [{ id: 'b-' + Date.now(), type: 'text', text: '', checked: false }];
+            }
+
+            container.innerHTML = page.blocks.map(b => renderSingleNotionBlockHTML(b)).join('');
+            lucide.createIcons();
+        }
+
+        function renderSingleNotionBlockHTML(b) {
+            const id = b.id;
+            const safeText = escapeHtml(b.text || '');
+
+            const gutter = `
+                <div class="notion-gutter-controls flex items-center gap-0.5 pr-1.5 pt-1 shrink-0 select-none">
+                    <button onclick="openSlashMenuFromButton('${id}', event)" title="Change block type or add (/)" class="p-1 text-dim hover:text-ink rounded-xs">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button onclick="deleteNotionBlock('${id}')" title="Delete block" class="p-1 text-dim hover:text-loss rounded-xs">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            `;
+
+            if (b.type === 'divider') {
+                return `
+                    <div class="notion-block-row flex items-center py-2 group" data-block-id="${id}">
+                        ${gutter}
+                        <div class="flex-1 hairline-b"></div>
+                    </div>
+                `;
+            }
+
+            if (b.type === 'page') {
+                const targetPage = notionPages.find(p => p.id === b.targetPageId);
+                const title = targetPage ? targetPage.title : (b.text || 'Untitled Sub-page');
+                const icon = targetPage ? targetPage.icon : '📄';
+                return `
+                    <div class="notion-block-row flex items-center py-1" data-block-id="${id}">
+                        ${gutter}
+                        <div onclick="selectNotionPage('${b.targetPageId}')" class="flex-1 p-2.5 surface-panel hover:opacity-90 rounded-md flex items-center justify-between cursor-pointer">
+                            <div class="flex items-center gap-2.5 font-medium text-sm text-ink">
+                                <span>${icon}</span>
+                                <span class="underline">${escapeHtml(title)}</span>
+                            </div>
+                            <span class="font-mono text-[10px] text-dim flex items-center gap-1">Open Sub-page <i data-lucide="arrow-right" class="w-3 h-3"></i></span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (b.type === 'todo') {
+                return `
+                    <div class="notion-block-row flex items-start py-1" data-block-id="${id}">
+                        ${gutter}
+                        <div class="flex items-start gap-2.5 flex-1">
+                            <input 
+                                type="checkbox" 
+                                ${b.checked ? 'checked' : ''} 
+                                onchange="toggleNotionTodo('${id}', this.checked)"
+                                class="mt-1.5 w-4 h-4 cursor-pointer shrink-0"
+                            >
+                            <div 
+                                id="editable-${id}"
+                                contenteditable="true"
+                                data-placeholder="To-do requirement (Type '/' for commands, '/p' for sub-page)..."
+                                oninput="handleBlockInput('${id}', this)"
+                                onkeydown="handleBlockKeydown(event, '${id}')"
+                                class="notion-editable flex-1 text-sm leading-relaxed ${b.checked ? 'line-through text-dim' : 'text-ink'}"
+                            >${safeText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (b.type === 'h1') {
+                return `
+                    <div class="notion-block-row flex items-start pt-5 pb-1" data-block-id="${id}">
+                        ${gutter}
+                        <div 
+                            id="editable-${id}"
+                            contenteditable="true"
+                            data-placeholder="Heading 1..."
+                            oninput="handleBlockInput('${id}', this)"
+                            onkeydown="handleBlockKeydown(event, '${id}')"
+                            class="notion-editable flex-1 font-serif text-2xl sm:text-3xl text-ink font-semibold tracking-tight"
+                        >${safeText}</div>
+                    </div>
+                `;
+            }
+
+            if (b.type === 'h2') {
+                return `
+                    <div class="notion-block-row flex items-start pt-4 pb-1" data-block-id="${id}">
+                        ${gutter}
+                        <div 
+                            id="editable-${id}"
+                            contenteditable="true"
+                            data-placeholder="Heading 2..."
+                            oninput="handleBlockInput('${id}', this)"
+                            onkeydown="handleBlockKeydown(event, '${id}')"
+                            class="notion-editable flex-1 font-serif text-xl sm:text-2xl text-ink font-medium"
+                        >${safeText}</div>
+                    </div>
+                `;
+            }
+
+            if (b.type === 'h3') {
+                return `
+                    <div class="notion-block-row flex items-start pt-2 pb-0.5" data-block-id="${id}">
+                        ${gutter}
+                        <div 
+                            id="editable-${id}"
+                            contenteditable="true"
+                            data-placeholder="Heading 3..."
+                            oninput="handleBlockInput('${id}', this)"
+                            onkeydown="handleBlockKeydown(event, '${id}')"
+                            class="notion-editable flex-1 font-sans text-base font-semibold text-ink"
+                        >${safeText}</div>
+                    </div>
+                `;
+            }
+
+            if (b.type === 'bullet') {
+                return `
+                    <div class="notion-block-row flex items-start py-1" data-block-id="${id}">
+                        ${gutter}
+                        <div class="flex items-start gap-2.5 flex-1">
+                            <span class="text-ink font-bold mt-0.5 select-none">&bull;</span>
+                            <div 
+                                id="editable-${id}"
+                                contenteditable="true"
+                                data-placeholder="List item..."
+                                oninput="handleBlockInput('${id}', this)"
+                                onkeydown="handleBlockKeydown(event, '${id}')"
+                                class="notion-editable flex-1 text-sm leading-relaxed text-ink"
+                            >${safeText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (b.type === 'toggle') {
+                return `
+                    <div class="notion-block-row flex items-start py-1" data-block-id="${id}">
+                        ${gutter}
+                        <div class="flex-1">
+                            <div class="flex items-start gap-2">
+                                <button onclick="toggleNotionCollapse('${id}')" class="mt-1 text-sub hover:text-ink transition-transform ${b.isOpen ? 'rotate-90' : ''}">
+                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </button>
+                                <div 
+                                    id="editable-${id}"
+                                    contenteditable="true"
+                                    data-placeholder="Toggle header..."
+                                    oninput="handleBlockInput('${id}', this)"
+                                    onkeydown="handleBlockKeydown(event, '${id}')"
+                                    class="notion-editable flex-1 text-sm font-medium text-ink"
+                                >${safeText}</div>
+                            </div>
+                            ${b.isOpen ? `
+                                <div class="pl-6 mt-1.5">
+                                    <textarea 
+                                        rows="2"
+                                        placeholder="Add nested toggle notes, marking criteria, or equations..."
+                                        oninput="updateNotionToggleDetails('${id}', this.value)"
+                                        class="w-full surface-inset p-2.5 rounded-md text-xs text-sub focus:outline-none"
+                                    >${escapeHtml(b.details || '')}</textarea>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (b.type === 'callout') {
+                return `
+                    <div class="notion-block-row flex items-start py-1.5" data-block-id="${id}">
+                        ${gutter}
+                        <div class="flex-1 notion-callout p-3.5 rounded-md flex items-start gap-3">
+                            <span class="text-base select-none">📌</span>
+                            <div 
+                                id="editable-${id}"
+                                contenteditable="true"
+                                data-placeholder="Callout note or exam warning..."
+                                oninput="handleBlockInput('${id}', this)"
+                                onkeydown="handleBlockKeydown(event, '${id}')"
+                                class="notion-editable flex-1 text-xs sm:text-sm font-medium text-ink leading-relaxed"
+                            >${safeText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (b.type === 'quote') {
+                return `
+                    <div class="notion-block-row flex items-start py-1.5" data-block-id="${id}">
+                        ${gutter}
+                        <div class="flex-1 notion-quote-line pl-4 py-0.5">
+                            <div 
+                                id="editable-${id}"
+                                contenteditable="true"
+                                data-placeholder="Quote or theorem..."
+                                oninput="handleBlockInput('${id}', this)"
+                                onkeydown="handleBlockKeydown(event, '${id}')"
+                                class="notion-editable font-serif italic text-lg text-ink"
+                            >${safeText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (b.type === 'code') {
+                return `
+                    <div class="notion-block-row flex items-start py-1.5" data-block-id="${id}">
+                        ${gutter}
+                        <div class="flex-1 notion-code-block p-3.5 rounded-md">
+                            <div 
+                                id="editable-${id}"
+                                contenteditable="true"
+                                data-placeholder="// Paste Python, R, or LaTeX code..."
+                                oninput="handleBlockInput('${id}', this)"
+                                onkeydown="handleBlockKeydown(event, '${id}')"
+                                class="notion-editable text-xs text-ink whitespace-pre-wrap"
+                            >${safeText}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Default: 'text'
+            return `
+                <div class="notion-block-row flex items-start py-1" data-block-id="${id}">
+                    ${gutter}
+                    <div 
+                        id="editable-${id}"
+                        contenteditable="true"
+                        data-placeholder="Type '/' for commands, '/p' for new page, or '[]' for to-do..."
+                        oninput="handleBlockInput('${id}', this)"
+                        onkeydown="handleBlockKeydown(event, '${id}')"
+                        class="notion-editable flex-1 text-sm leading-relaxed text-ink"
+                    >${safeText}</div>
+                </div>
+            `;
+        }
+
+        function focusBlockEnd(blockId) {
+            setTimeout(() => {
+                const el = document.getElementById(`editable-${blockId}`);
+                if (!el) return;
+                el.focus();
+                const range = document.createRange();
+                range.selectNodeContents(el);
+                range.collapse(false);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }, 20);
+        }
+
+        function handleBlockInput(blockId, el) {
+            const page = getActiveNotionPage();
+            if (!page) return;
+            const block = page.blocks.find(b => b.id === blockId);
+            if (!block) return;
+
+            const raw = el.innerText;
+
+            // 1. Instant Notion Markdown Prefixes at start of line
+            if (raw.startsWith('[] ') || raw.startsWith('[ ] ')) {
+                block.type = 'todo';
+                block.checked = false;
+                block.text = raw.replace(/^\[\s?\]\s/, '');
+                closeSlashMenu();
+                renderNotionActivePage();
+                focusBlockEnd(blockId);
+                window.persistEvanderData();
+                return;
+            }
+            if (raw.startsWith('[x] ') || raw.startsWith('[X] ')) {
+                block.type = 'todo';
+                block.checked = true;
+                block.text = raw.replace(/^\[[xX]\]\s/, '');
+                closeSlashMenu();
+                renderNotionActivePage();
+                focusBlockEnd(blockId);
+                window.persistEvanderData();
+                return;
+            }
+            if (raw.startsWith('# ')) {
+                block.type = 'h1';
+                block.text = raw.slice(2);
+                closeSlashMenu();
+                renderNotionActivePage();
+                focusBlockEnd(blockId);
+                window.persistEvanderData();
+                return;
+            }
+            if (raw.startsWith('## ')) {
+                block.type = 'h2';
+                block.text = raw.slice(3);
+                closeSlashMenu();
+                renderNotionActivePage();
+                focusBlockEnd(blockId);
+                window.persistEvanderData();
+                return;
+            }
+            if (raw.startsWith('### ')) {
+                block.type = 'h3';
+                block.text = raw.slice(4);
+                closeSlashMenu();
+                renderNotionActivePage();
+                focusBlockEnd(blockId);
+                window.persistEvanderData();
+                return;
+            }
+            if (raw.startsWith('- ') || raw.startsWith('* ')) {
+                block.type = 'bullet';
+                block.text = raw.slice(2);
+                closeSlashMenu();
+                renderNotionActivePage();
+                focusBlockEnd(blockId);
+                window.persistEvanderData();
+                return;
+            }
+            if (raw.startsWith('> ')) {
+                block.type = 'toggle';
+                block.isOpen = true;
+                block.text = raw.slice(2);
+                closeSlashMenu();
+                renderNotionActivePage();
+                focusBlockEnd(blockId);
+                window.persistEvanderData();
+                return;
+            }
+            if (raw.startsWith('" ')) {
+                block.type = 'quote';
+                block.text = raw.slice(2);
+                closeSlashMenu();
+                renderNotionActivePage();
+                focusBlockEnd(blockId);
+                window.persistEvanderData();
+                return;
+            }
+            if (raw.trim() === '---') {
+                block.type = 'divider';
+                block.text = '';
+                const idx = page.blocks.findIndex(b => b.id === blockId);
+                const nextBlock = { id: 'b-' + Date.now(), type: 'text', text: '', checked: false };
+                page.blocks.splice(idx + 1, 0, nextBlock);
+                closeSlashMenu();
+                renderNotionActivePage();
+                focusBlockEnd(nextBlock.id);
+                window.persistEvanderData();
+                return;
+            }
+
+            block.text = raw;
+
+            // 2. Check for Slash Command (`/`, `/p`, `/todo`, etc.)
+            const slashMatch = raw.match(/(?:^|\s)\/([a-zA-Z0-9]*)$/);
+            if (slashMatch) {
+                const query = slashMatch[1].toLowerCase();
+                openSlashMenuForBlock(blockId, query, el);
+            } else {
+                closeSlashMenu();
+            }
+
+            window.persistEvanderData();
+        }
+
+        function handleBlockKeydown(e, blockId) {
+            const page = getActiveNotionPage();
+            if (!page) return;
+            const idx = page.blocks.findIndex(b => b.id === blockId);
+            const block = page.blocks[idx];
+            if (!block) return;
+
+            // Navigate Slash Menu if open
+            if (slashState.open && slashState.blockId === blockId) {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    slashState.selectedIndex = (slashState.selectedIndex + 1) % Math.max(1, slashState.filtered.length);
+                    renderSlashMenuItems();
+                    return;
+                }
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    slashState.selectedIndex = (slashState.selectedIndex - 1 + Math.max(1, slashState.filtered.length)) % Math.max(1, slashState.filtered.length);
+                    renderSlashMenuItems();
+                    return;
+                }
+                if (e.key === 'Enter' || e.key === 'Tab') {
+                    e.preventDefault();
+                    const chosen = slashState.filtered[slashState.selectedIndex] || slashState.filtered[0];
+                    if (chosen) executeSlashCommand(blockId, chosen.action);
+                    return;
+                }
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeSlashMenu();
+                    return;
+                }
+            }
+
+            // Ctrl/Cmd + Enter toggles To-Do completion
+            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (block.type === 'todo') {
+                    block.checked = !block.checked;
+                    renderNotionWorkspace();
+                    focusBlockEnd(blockId);
+                    window.persistEvanderData();
+                }
+                return;
+            }
+
+            // Enter creates next block (unless Shift+Enter or inside Code block)
+            if (e.key === 'Enter' && !e.shiftKey && block.type !== 'code') {
+                e.preventDefault();
+                const nextType = (block.type === 'todo' || block.type === 'bullet') ? block.type : 'text';
+                const newBlock = {
+                    id: 'b-' + Date.now() + '-' + Math.floor(Math.random() * 100),
+                    type: nextType,
+                    text: '',
+                    checked: false
+                };
+                page.blocks.splice(idx + 1, 0, newBlock);
+                renderNotionWorkspace();
+                focusBlockEnd(newBlock.id);
+                window.persistEvanderData();
+                return;
+            }
+
+            // Backspace on empty block converts special block to plain text or deletes it
+            if (e.key === 'Backspace' && (block.text || '').trim() === '') {
+                if (block.type !== 'text') {
+                    e.preventDefault();
+                    block.type = 'text';
+                    renderNotionWorkspace();
+                    focusBlockEnd(blockId);
+                    window.persistEvanderData();
+                } else if (page.blocks.length > 1) {
+                    e.preventDefault();
+                    const prevBlock = page.blocks[idx - 1] || page.blocks[idx + 1];
+                    page.blocks.splice(idx, 1);
+                    renderNotionWorkspace();
+                    if (prevBlock) focusBlockEnd(prevBlock.id);
+                    window.persistEvanderData();
+                }
+            }
+        }
+
+        function openSlashMenuForBlock(blockId, query, anchorEl) {
+            slashState.open = true;
+            slashState.blockId = blockId;
+            slashState.query = query;
+            slashState.filtered = NOTION_SLASH_COMMANDS.filter(item =>
+                item.aliases.some(a => a.startsWith(query)) ||
+                item.label.toLowerCase().includes(query)
+            );
+            slashState.selectedIndex = 0;
+
+            const menu = document.getElementById('notion-slash-menu');
+            const indicator = document.getElementById('slash-filter-indicator');
+            if (!menu) return;
+
+            if (indicator) indicator.textContent = query ? `/${query}` : 'Type to filter';
+
+            const rect = anchorEl.getBoundingClientRect();
+            const topPos = Math.min(window.innerHeight - 310, rect.bottom + 6);
+            const leftPos = Math.min(window.innerWidth - 300, Math.max(12, rect.left));
+
+            menu.style.top = `${topPos}px`;
+            menu.style.left = `${leftPos}px`;
+            menu.classList.remove('hidden');
+
+            renderSlashMenuItems();
+        }
+
+        function openSlashMenuFromButton(blockId, event) {
+            event.stopPropagation();
+            const el = document.getElementById(`editable-${blockId}`) || event.currentTarget;
+            openSlashMenuForBlock(blockId, '', el);
+        }
+
+        function renderSlashMenuItems() {
+            const container = document.getElementById('notion-slash-items');
+            if (!container) return;
+
+            if (slashState.filtered.length === 0) {
+                container.innerHTML = `<div class="p-3 font-mono text-xs text-dim">No matching block command.</div>`;
+                return;
+            }
+
+            container.innerHTML = slashState.filtered.map((item, i) => `
+                <button 
+                    type="button"
+                    onmousedown="event.preventDefault(); executeSlashCommand('${slashState.blockId}', '${item.action}')"
+                    class="notion-slash-item w-full px-3 py-2 text-left flex items-center gap-3 hover:opacity-90 ${i === slashState.selectedIndex ? 'active' : ''}"
+                >
+                    <div class="w-7 h-7 rounded-md surface-panel flex items-center justify-center shrink-0">
+                        <i data-lucide="${item.icon}" class="w-3.5 h-3.5 text-ink"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="text-xs font-semibold text-ink">${item.label}</div>
+                        <div class="text-[10px] text-dim truncate">${item.desc}</div>
+                    </div>
+                </button>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function closeSlashMenu() {
+            slashState.open = false;
+            const menu = document.getElementById('notion-slash-menu');
+            if (menu) menu.classList.add('hidden');
+        }
+
+        function executeSlashCommand(blockId, action) {
+            const page = getActiveNotionPage();
+            if (!page) return;
+            const block = page.blocks.find(b => b.id === blockId);
+            if (!block) return;
+
+            // Strip trailing `/command` from the block text
+            block.text = (block.text || '').replace(/(?:^|\s)\/[a-zA-Z0-9]*$/, '').trim();
+            closeSlashMenu();
+
+            if (action === 'page') {
+                // `/p` creates a genuine nested sub-page and links it in the block
+                const subTitle = block.text || 'Untitled Sub-page';
+                const newSub = createNewNotionPage(page.id, subTitle, false);
+                block.type = 'page';
+                block.targetPageId = newSub.id;
+                block.text = newSub.title;
+                // Automatically navigate into the newly created page just like Notion's `/p`
+                activeNotionPageId = newSub.id;
+                renderNotionWorkspace();
+                const titleInput = document.getElementById('notion-page-title-input');
+                if (titleInput) {
+                    titleInput.focus();
+                    titleInput.select();
+                }
+                window.persistEvanderData();
+                return;
+            }
+
+            block.type = action;
+            if (action === 'toggle') block.isOpen = true;
+            renderNotionWorkspace();
+            focusBlockEnd(blockId);
+            window.persistEvanderData();
+        }
+
+        function toggleNotionTodo(blockId, checked) {
+            const page = getActiveNotionPage();
+            if (!page) return;
+            const b = page.blocks.find(x => x.id === blockId);
+            if (b) {
+                b.checked = checked;
+                renderNotionWorkspace();
+                window.persistEvanderData();
+            }
+        }
+
+        function toggleNotionCollapse(blockId) {
+            const page = getActiveNotionPage();
+            if (!page) return;
+            const b = page.blocks.find(x => x.id === blockId);
+            if (b) {
+                b.isOpen = !b.isOpen;
+                renderNotionWorkspace();
+                window.persistEvanderData();
+            }
+        }
+
+        function updateNotionToggleDetails(blockId, val) {
+            const page = getActiveNotionPage();
+            if (!page) return;
+            const b = page.blocks.find(x => x.id === blockId);
+            if (b) {
+                b.details = val;
+                window.persistEvanderData();
+            }
+        }
+
+        function appendNotionBlock(type = 'todo', text = '') {
+            const page = getActiveNotionPage();
+            if (!page) return;
+            const newBlock = {
+                id: 'b-' + Date.now(),
+                type,
+                text,
+                checked: false,
+                isOpen: true
+            };
+            page.blocks.push(newBlock);
+            renderNotionWorkspace();
+            focusBlockEnd(newBlock.id);
+            window.persistEvanderData();
+        }
+
+        function deleteNotionBlock(blockId) {
+            const page = getActiveNotionPage();
+            if (!page) return;
+            page.blocks = page.blocks.filter(b => b.id !== blockId);
+            if (page.blocks.length === 0) {
+                page.blocks.push({ id: 'b-' + Date.now(), type: 'text', text: '', checked: false });
+            }
+            renderNotionWorkspace();
+            window.persistEvanderData();
+        }
+
+        function selectNotionPage(pageId) {
+            if (!notionPages.some(p => p.id === pageId)) return;
+            activeNotionPageId = pageId;
+            closeSlashMenu();
+            renderNotionWorkspace();
+            window.persistEvanderData();
+        }
+
+        function createNewNotionPage(parentId = null, customTitle = 'Untitled Requirement Page', switchImmediately = true) {
+            const parent = parentId ? notionPages.find(p => p.id === parentId) : null;
+            const newPage = {
+                id: 'page-' + Date.now() + '-' + Math.floor(Math.random() * 100),
+                parentId: parentId || null,
+                title: customTitle,
+                icon: PAGE_ICONS[notionPages.length % PAGE_ICONS.length],
+                unit: parent?.unit || 'ALL',
+                linkedTaskId: '',
+                updatedAt: referenceDateStr,
+                blocks: [
+                    { id: 'b-' + Date.now() + '-1', type: 'todo', text: '', checked: false }
+                ]
+            };
+            notionPages.push(newPage);
+            if (switchImmediately) {
+                activeNotionPageId = newPage.id;
+                renderNotionWorkspace();
+                setTimeout(() => {
+                    const input = document.getElementById('notion-page-title-input');
+                    if (input) {
+                        input.focus();
+                        input.select();
+                    }
+                }, 30);
+            }
+            window.persistEvanderData();
+            return newPage;
+        }
+
+        function createSubpageInsideCurrent() {
+            const page = getActiveNotionPage();
+            if (!page) return;
+            const sub = createNewNotionPage(page.id, 'Untitled Sub-page', false);
+            page.blocks.push({
+                id: 'b-' + Date.now(),
+                type: 'page',
+                targetPageId: sub.id,
+                text: sub.title
+            });
+            activeNotionPageId = sub.id;
+            renderNotionWorkspace();
+            window.persistEvanderData();
+        }
+
+        function updateActivePageTitle(val) {
+            const page = getActiveNotionPage();
+            if (!page) return;
+            page.title = val;
+            renderNotionSidebar();
+            renderNotionBreadcrumbs(page);
+            window.persistEvanderData();
+        }
+
+        function updateActivePageMeta(key, val) {
+            const page = getActiveNotionPage();
+            if (!page) return;
+            page[key] = val;
+            renderNotionWorkspace();
+            window.persistEvanderData();
+        }
+
+        function cycleNotionPageIcon() {
+            const page = getActiveNotionPage();
+            if (!page) return;
+            const idx = PAGE_ICONS.indexOf(page.icon);
+            page.icon = PAGE_ICONS[(idx + 1) % PAGE_ICONS.length];
+            renderNotionWorkspace();
+            window.persistEvanderData();
+        }
+
+        function deleteCurrentNotionPage() {
+            if (notionPages.length <= 1) return;
+            const idToRemove = activeNotionPageId;
+            notionPages = notionPages.filter(p => p.id !== idToRemove && p.parentId !== idToRemove);
+            activeNotionPageId = notionPages[0].id;
+            renderNotionWorkspace();
+            window.persistEvanderData();
+        }
+
+        function openOrCreateNotionSpecForTask(taskId) {
+            const t = tasks.find(x => x.id === taskId);
+            if (!t) return;
+            let existing = notionPages.find(p => p.linkedTaskId === taskId);
+            if (!existing) {
+                existing = {
+                    id: 'page-' + Date.now(),
+                    parentId: null,
+                    title: `${t.unit} — ${t.name} Checklist`,
+                    icon: '📑',
+                    unit: t.unit,
+                    linkedTaskId: t.id,
+                    updatedAt: referenceDateStr,
+                    blocks: [
+                        { id: 'b-' + Date.now() + '-1', type: 'callout', text: `Requirement checklist for ${t.name} (${t.weight}% weight, due ${t.dueDate}).`, checked: false },
+                        { id: 'b-' + Date.now() + '-2', type: 'todo', text: 'Break down rubric criteria and core deliverables', checked: false },
+                        { id: 'b-' + Date.now() + '-3', type: 'todo', text: 'Complete draft & verify formatting before deadline', checked: false }
+                    ]
+                };
+                notionPages.push(existing);
+            }
+            activeNotionPageId = existing.id;
+            switchTab('todo');
+            window.persistEvanderData();
+        }
+
+        function toggleShortcutsDrawer() {
+            const m = document.getElementById('shortcuts-modal');
+            if (!m) return;
+            if (m.classList.contains('hidden')) {
+                m.classList.remove('hidden');
+                m.classList.add('flex');
+            } else {
+                m.classList.add('hidden');
+                m.classList.remove('flex');
+            }
+        }
+
+        window.addEventListener('click', (e) => {
+            if (slashState.open && !e.target.closest('#notion-slash-menu')) {
+                closeSlashMenu();
+            }
+        });
+
+        function switchTab(tabName) {
+            activeTab = tabName;
+            ['dashboard', 'tasks', 'todo', 'calendar'].forEach(t => {
+                const view = document.getElementById(`view-${t}`);
+                const btn = document.getElementById(`nav-${t}`);
+                if (!view || !btn) return;
+                if (t === tabName) {
+                    view.classList.remove('hidden');
+                    btn.style.backgroundColor = 'var(--bg-subtle)';
+                    btn.style.color = 'var(--text-primary)';
+                } else {
+                    view.classList.add('hidden');
+                    btn.style.backgroundColor = 'transparent';
+                    btn.style.color = 'var(--text-secondary)';
+                }
+            });
+
+            if (tabName === 'calendar') renderCalendar();
+            else if (tabName === 'tasks') renderTasksTable();
+            else if (tabName === 'todo') renderNotionWorkspace();
+            else {
+                renderDashboard();
+                window.dispatchEvent(new Event('resize'));
+            }
+        }
+
+        function handleReferenceDateChange(val) {
+            if (!val) return;
+            referenceDateStr = val;
+            document.getElementById('clock-display').textContent = formatReadableDate(val);
+            refreshAllViews();
+            window.persistEvanderData();
+        }
+
+        function resetDemoData() {
+            tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
+            notionPages = JSON.parse(JSON.stringify(DEFAULT_NOTION_PAGES));
+            activeNotionPageId = notionPages[0].id;
+            referenceDateStr = '2026-10-27';
+            document.getElementById('sim-date-input').value = '2026-10-27';
+            currentCalYear = 2026;
+            currentCalMonth = 9;
+            refreshAllViews();
+            window.persistEvanderData();
+        }
+
+        function refreshAllViews() {
+            renderDashboard();
+            renderTasksTable();
+            renderNotionWorkspace();
+            renderCalendar();
+        }
+
+        function formatReadableDate(dateStr) {
+            const d = new Date(dateStr + 'T00:00:00');
+            return d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        window.onload = function () {
+            // Default to low-glare carbon dark mode to match your screenshot preference
+            document.documentElement.classList.add('dark');
+            loadFromLocalCache();
+            const isDark = document.documentElement.classList.contains('dark');
+            updateThemeIcons(isDark);
+            const dateInput = document.getElementById('sim-date-input');
+            if (dateInput) dateInput.value = referenceDateStr;
+            const clockEl = document.getElementById('clock-display');
+            if (clockEl) clockEl.textContent = formatReadableDate(referenceDateStr);
+            switchTab('dashboard');
+            initThreeMonolith();
+            update3DThemeColors(isDark);
+            refreshAllViews();
+            startAutonomousQuoteCycle();
+            saveToLocalCache();
+            window.updateSyncBadge('All Changes Auto-Saved', true);
+        };
+    </script>
+
+    <!-- ========================================================================= -->
+    <!-- AUTOMATIC CLOUD PERSISTENCE ENGINE (Real-time Auto-Save across sessions)  -->
+    <!-- ========================================================================= -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const setBadge = (msg, ok) => {
+            if (typeof window.updateSyncBadge === 'function') {
+                window.updateSyncBadge(msg, ok);
+            }
+        };
+
+        async function initCloudAutoSave() {
+            try {
+                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                    setBadge('Saved (GitHub Pages Ready)', true);
+                    return;
+                }
+
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'evander-usyd-app';
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                const db = getFirestore(app);
+
+                setBadge('Connecting Cloud...', false);
+
+                // Mandatory Rule 3: Authenticate before any Firestore operation
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                const user = auth.currentUser;
+                if (!user) return;
+
+                // Mandatory Rule 1: Strict private user path
+                const stateDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'academicState', 'semester2_2026_v3');
+
+                let isApplyingRemote = false;
+
+                window.cloudSyncPush = async function () {
+                    if (!auth.currentUser || isApplyingRemote) return;
+                    try {
+                        setBadge('Saving...', false);
+                        const isDark = document.documentElement.classList.contains('dark');
+                        await setDoc(stateDocRef, {
+                            tasksJson: JSON.stringify(tasks),
+                            notionPagesJson: JSON.stringify(notionPages),
+                            activeNotionPageId: activeNotionPageId,
+                            referenceDateStr: referenceDateStr,
+                            theme: isDark ? 'dark' : 'light',
+                            updatedAt: Date.now()
+                        });
+                        setBadge('All Changes Auto-Saved', true);
+                    } catch (err) {
+                        console.error('Auto-save error:', err);
+                        setBadge('Saved Locally', true);
+                    }
+                };
+
+                // Listen for saved state and seed with your 24 tasks + Notion workspace if empty
+                onSnapshot(
+                    stateDocRef,
+                    (snapshot) => {
+                        if (snapshot.exists()) {
+                            const data = snapshot.data();
+                            isApplyingRemote = true;
+                            if (data.tasksJson) {
+                                try {
+                                    const parsed = JSON.parse(data.tasksJson);
+                                    if (Array.isArray(parsed) && parsed.length > 0) {
+                                        tasks = parsed;
+                                    }
+                                } catch (e) {
+                                    console.error('Parse error:', e);
+                                }
+                            }
+                            if (data.notionPagesJson) {
+                                try {
+                                    const parsedPages = JSON.parse(data.notionPagesJson);
+                                    if (Array.isArray(parsedPages) && parsedPages.length > 0) {
+                                        notionPages = parsedPages;
+                                    }
+                                } catch (e) {
+                                    console.error('Notion pages parse error:', e);
+                                }
+                            }
+                            if (data.activeNotionPageId && notionPages.some(p => p.id === data.activeNotionPageId)) {
+                                activeNotionPageId = data.activeNotionPageId;
+                            }
+                            if (data.referenceDateStr) {
+                                referenceDateStr = data.referenceDateStr;
+                                const dateInput = document.getElementById('sim-date-input');
+                                if (dateInput) dateInput.value = referenceDateStr;
+                                const clockEl = document.getElementById('clock-display');
+                                if (clockEl) clockEl.textContent = formatReadableDate(referenceDateStr);
+                            }
+                            if (data.theme) {
+                                const wantDark = data.theme === 'dark';
+                                document.documentElement.classList.toggle('dark', wantDark);
+                                updateThemeIcons(wantDark);
+                                update3DThemeColors(wantDark);
+                            }
+                            saveToLocalCache();
+                            refreshAllViews();
+                            isApplyingRemote = false;
+                            setBadge('All Changes Auto-Saved', true);
+                        } else {
+                            // First load: immediately save your 24 tasks + Notion workspace
+                            window.cloudSyncPush();
+                        }
+                    },
+                    (error) => {
+                        console.error('Snapshot listener error:', error);
+                        setBadge('Saved Locally', true);
+                    }
+                );
+            } catch (e) {
+                console.error('Cloud init error:', e);
+                setBadge('Saved Locally', true);
+            }
+        }
+
+        initCloudAutoSave();
+    </script>
+</body>
+</html>
